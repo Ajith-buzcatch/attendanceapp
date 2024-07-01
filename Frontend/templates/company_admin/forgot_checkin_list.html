@@ -1,0 +1,49 @@
+{% extends 'company_admin/adminbase.html' %}
+
+{% block content %}
+<div class="container-fluid content-inner mt-6 py-0">
+    <div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <div class="header-title">
+                            <h4 class="card-title">Forgot Check-In Requests</h4>
+                        </div>
+                    </div>
+                    <div class="card-body px-0">
+                        <div class="table-responsive">
+                            <table id="datatable" class="table table-striped" data-toggle="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Requested Time</th>
+                                        <th>Submitted At</th>
+                                        <th>Reason</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for checkin in forgot_checkins %}
+                                    <tr>
+                                        <td>{{ checkin.employee.user.username }}</td>
+                                        {% comment %} <td>{{ checkin.company.name }}</td> {% endcomment %}
+                                        <td>{{ checkin.normal_login_time }}</td>
+                                        <td>{{ checkin.current_time }}</td>
+                                        <td>{{ checkin.reason }}</td>
+                                        <td>
+                                            <a href="{% url 'approve_forgot_checkin' checkin.id %}" class="btn btn-primary">Review</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

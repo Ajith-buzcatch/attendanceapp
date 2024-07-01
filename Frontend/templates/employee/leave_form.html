@@ -1,0 +1,202 @@
+{% extends "employee/employeebase.html" %}
+{% block content %}
+    <div class="middle">
+
+        <div class="landing-center">
+            <div class="work-name bold blues">
+                <h5>Leave Request</h5>
+            </div> <br>
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        <a class="close" href="#" data-dismiss="alert">×</a>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label">Leave Type</label>
+                        <select name="leavetype" class="selectpicker form-control" data-style="py-0" required>
+                            <option>Select</option>
+                            {% for leave in leave_name %}
+                                <option value="{{ leave.id }}">{{ leave.leaves }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="form-label" for="furl">From Date</label>
+                            <input type="date" name="from_date" class="form-control" id="from_date" placeholder="From Date" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="form-label" for="turl">To Date</label>
+                            <input type="date" name="end_date" class="form-control" id="end_date" placeholder="To Date" required>
+                        </div>
+                    </div>
+                    <div class="form-group" id="half_day_option" style="display: none;">
+                        <label class="form-label">Half Day Option : </label><span class="text-danger" > Don't Select Option if Leave is Full Day</span>
+                        <select name="half_day_option" class="form-control">
+                            <option value="">Select</option>
+                            <option value="first_half">First Half</option>
+                            <option value="second_half">Second Half</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reason">Reason</label>
+                        <textarea type="text" name="reason" class="form-control" id="reason" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-12 d-flex justify-content-end" style="width: 100%;">
+                            <button type="submit" class="btn btn-primary leave_btn"
+                                style="width: 100%; max-width: auto;">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Table with leave requests -->
+        {% if leave_requests %}
+        <div class="card">
+            <div class=" px-0">
+                <div class="table-responsive">
+                    <table id="myTable" class="table table-striped" role="grid" data-toggle="data-table">
+                        <thead>
+                            <tr class="blue">
+                                <th>Type</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Duration</th>
+                                <th>Applied</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave_request in leave_requests %}
+                            <tr>
+                                <td>{{ leave_request.leave.leaves }}</td>
+                                <td>{{ leave_request.from_date }}</td>
+                                <td>{{ leave_request.end_date }}</td>
+                                <td>{{ leave_request.duration }} {% if leave_request.duration <= 1 %}Day {% else %}Days{% endif %}</td>
+                                <td>{{ leave_request.enquery_date }}</td>
+                                <td>
+                                    {% if leave_request.status == 0 %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif leave_request.status == 1 %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif leave_request.status == 2 %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% elif leave_request.status == 3 %}
+                                        <span class="badge bg-secondary">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if leave_request.status != 3 %}
+                                        <span class="badge bg-danger" data-toggle="modal" data-target="#myModal" data-id="{{ leave_request.id }}"><ion-icon name="trash-outline"></ion-icon></span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        {% endif %}
+
+       <!-- Modal for Delete Request -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title danger" id="exampleModalLabel" style="color: red;">Cancel Request</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="modal-reason">Reason</label>
+                        <textarea type="text" class="form-control" id="modal-reason" name="modal-reason" required rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="delete_request" id="delete-request-id" value="">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Cancel Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to handle modal -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#myModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var leaveRequestId = button.data('id'); // Extract info from data-* attributes
+            console.log("Leave Request ID from data attribute:", leaveRequestId); // Debugging statement
+            var modal = $(this);
+            modal.find('#delete-request-id').val(leaveRequestId);
+            console.log("Leave Request ID set in hidden input:", modal.find('#delete-request-id').val()); // Debugging statement
+        });
+    });
+</script>
+<script>
+    document.getElementById('from_date').addEventListener('change', function() {
+        var fromDate = document.getElementById('from_date').value;
+        var endDate = document.getElementById('end_date').value;
+        var halfDayOption = document.getElementById('half_day_option');
+        if (fromDate && endDate && fromDate === endDate) {
+            halfDayOption.style.display = 'block';
+        } else {
+            halfDayOption.style.display = 'none';
+        }
+    });
+
+    document.getElementById('end_date').addEventListener('change', function() {
+        var fromDate = document.getElementById('from_date').value;
+        var endDate = document.getElementById('end_date').value;
+        var halfDayOption = document.getElementById('half_day_option');
+        if (fromDate && endDate && fromDate === endDate) {
+            halfDayOption.style.display = 'block';
+        } else {
+            halfDayOption.style.display = 'none';
+        }
+    });
+</script>
+
+{% block leaveformjs %}
+
+<script>
+    document.getElementById('from_date').addEventListener('change', function() {
+        var fromDate = document.getElementById('from_date').value;
+        var endDate = document.getElementById('end_date').value;
+        var halfDayOption = document.getElementById('half_day_option');
+        if (fromDate && endDate && fromDate === endDate) {
+            halfDayOption.style.display = 'block';
+        } else {
+            halfDayOption.style.display = 'none';
+        }
+    });
+
+    document.getElementById('end_date').addEventListener('change', function() {
+        var fromDate = document.getElementById('from_date').value;
+        var endDate = document.getElementById('end_date').value;
+        var halfDayOption = document.getElementById('half_day_option');
+        if (fromDate && endDate && fromDate === endDate) {
+            halfDayOption.style.display = 'block';
+        } else {
+            halfDayOption.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock  %}
+{% endblock  %}  

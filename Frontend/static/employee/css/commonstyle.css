@@ -1,0 +1,48 @@
+.align-center{
+    text-align: center;
+}
+
+.bold{
+    font-weight: bold;
+}
+
+.icon{
+    color: #015c7c;  
+    /* #6aa9c0 */
+    font-size: larger;
+}
+
+.grey{
+    color: #f4f4f4;
+}
+
+.align-left{
+    margin-left: 18px;
+}
+
+hr {
+    margin-top: 3px;
+    border: none;
+    border-top: 1px dashed rgb(171, 175, 171) !important;
+}
+
+.top{
+    margin-top: 65px;
+}
+
+.personal tbody tr:nth-child(2n){
+    background-color: #f1f1f1;
+}
+
+.mtop {
+    margin-top: 2px;
+    margin-right: 4px;
+    font-size: large;
+}
+
+@media (min-width: 768px) {
+    .leave_btn {
+        width: auto !important;
+    }
+}
+

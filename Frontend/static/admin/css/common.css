@@ -1,0 +1,66 @@
+:root {
+    --color-blue: #015c7c !important;
+    --color-white: #fff !important;
+    --color-grey: #e6e1e1 !important;
+
+
+}
+
+.bg-blue {
+    background-color: var(--color-blue);
+}
+
+.bg-white {
+    background-color: var(--color-white);
+}
+
+.sidebar-default .navbar-nav .nav-item .nav-link:not(.disabled)[aria-expanded=true] {
+    background-color: var(--color-white);
+    color: var(--color-blue);
+}
+
+.nav-item.static-item a.nav-link.static-item.disabled {
+    color: var(--color-white);
+}
+
+.sidebar .sidebar-toggle {
+    background-color: var(--color-grey);
+}
+
+.sidebar-default .navbar-nav .nav-item .nav-link:not(.disabled):hover:not(.active):not([aria-expanded=true]) {
+    background-color: rgba(123, 96, 231, 0.1);
+    color: #9da4a7;
+}
+
+hr:not([size]) {
+    height: 1px;
+    background-color: #fff;
+}
+
+.nav-item .nav-link .icon svg path {
+    fill: var(--color-white);
+}
+
+
+.sidebar-default .sidebar-list .navbar-nav .nav-item .nav-link:not(.disabled) span {
+    color: var(--color-white);
+}
+
+a.nav-link[aria-expanded="true"] {
+    color: var(--color-blue) !important;
+}
+
+a.nav-link[aria-expanded="true"] .icon path,
+a.nav-link[aria-expanded="true"] .right-icon svg path {
+    fill: var(--color-blue);
+    stroke: var(--color-blue);
+}
+
+a.nav-link[aria-expanded="true"] .item-name {
+    color: var(--color-blue) !important;
+}
+
+.sidebar .navbar-brand {
+    color: var(--color-white);
+    font-weight: bold;
+}

@@ -1,0 +1,298 @@
+{% extends "employee/employeebase.html" %}
+{% load static %}
+{% block landingcss %}
+<link rel="stylesheet" href="{% static "employee/css/landing.css" %}">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<!-- Ionicons -->
+<link href="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.min.css" rel="stylesheet">
+{% endblock  %}
+{% block content %} 
+    <div class="middle">
+        <div class="desktop_view_div1">
+            <div class="landing-center">
+
+                <div class="landing-center-data">
+
+                    <div class="data-top">
+                        <div class="data-top-left">
+                            <ion-icon name="calendar-outline" class="icon"></ion-icon>
+                            <p id="current-date"></p>
+                        </div>
+                    
+                        <div class="data-top-right">
+                            <ion-icon name="timer-outline" class="icon"></ion-icon>
+                            <p id="current-time"></p>
+                        </div>
+                    </div>
+
+                    <div class="data-middle">
+                        <div class="data-box" id="hours">09</div>
+                        <div class="data-box" id="minutes">00</div>
+                        <div class="data-box" id="seconds">00</div>
+                        <div class="data-box">HRS</div>
+                    </div>
+                    {% if employee %}
+                    {% if work_time %}
+                    <p class="data-middle-bottom align-center">Work time : {{ work_time.start_time }} to {{ work_time.end_time }}</p>
+                    {% else %}
+                    <p class="data-middle-bottom align-center">Work Time: Not set</p>
+                    {% endif %}
+                    {% endif %}
+                     
+                    <form method="POST" action="{% url 'forgot_checkin' %}" id="attendance-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="latitude" id="latitude">
+                        <input type="hidden" name="longitude" id="longitude">
+                        <input type="hidden" name="action" id="action">
+                        <div class="data-bottom">
+                            {% comment %} <button class="data-top-left left-btn align-center bold" type="button" disabled>
+                                <ion-icon name="bag-outline" class="icon align-left"></ion-icon>
+                                <span> Work time</span>
+                            </button> {% endcomment %}
+                            {% if user.is_new_user or not latest_attendance or latest_attendance.logout_datetime %}
+                                <button id="checkin-button" class="data-top-right right-btn align-center arrow-forward-outline" type="button" onclick="handleCheckIn()">
+                                    <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                                    <span class="bold">Check In</span>
+                                </button>
+                                <button id="forgot-checkin-button" class="data-top-right right-btn align-center arrow-forward-outline" data-toggle="modal" data-target="#forgotCheckinModal" type="button">
+                                    <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                                    <span class="bold">Forgot Check In</span>
+                                </button>
+
+                                <div id="break-buttons" style="display: none;">
+                                    <button id="tea-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('tea')">
+                                        <ion-icon name="cafe-outline" class="align-left"></ion-icon>
+                                        <span class="bold">Tea Break</span>
+                                    </button>
+                                    <button id="lunch-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('lunch')">
+                                        <ion-icon name="restaurant-outline" class="align-left"></ion-icon>
+                                        <span class="bold">Lunch Break</span>
+                                    </button>
+                                    <button id="checkout-button" class="data-top-right right-btn align-center" type="button" onclick="confirmCheckout()">
+                                        <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                                        <span class="bold">Check Out</span>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <button id="checkin-button" class="data-top-right right-btn align-center" type="button" style="display:none;" onclick="handleCheckIn()">
+                                    <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                                    <span class="bold">Check In</span>
+                                </button>
+                                {% comment %} <button id="checkin-button" class="data-top-right right-btn align-center arrow-forward-outline"  data-toggle="modal" data-target="#myModal" type="button">
+                                    <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                                    <span class="bold">Forgot Check In</span>
+                                </button> {% endcomment %}
+                                <div id="break-buttons">
+                                    <button id="tea-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('tea')">
+                                        <ion-icon name="cafe-outline" class="align-left"></ion-icon>
+                                        <span class="bold">Tea Break</span>
+                                    </button>
+                                    <button id="lunch-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('lunch')">
+                                        <ion-icon name="restaurant-outline" class="align-left"></ion-icon>
+                                        <span class="bold">Lunch Break</span>
+                                    </button>
+                                    <button id="checkout-button" class="data-top-right right-btn align-center" type="button" onclick="confirmCheckout()">
+                                        <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                                        <span class="bold">Check Out</span>
+                                    </button>
+                                </div>
+                            {% endif %}
+                           
+                        </div>
+                    </form>
+                    <!-- Modal for Forgot CheckIn -->
+<div class="modal fade" id="forgotCheckinModal" tabindex="-1" aria-labelledby="forgotCheckinLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title danger" id="forgotCheckinLabel" style="color: red;">Forgot CheckIn</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'forgot_checkin' %}" id="forgot-checkin-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="forgot_checkin">
+                    <input type="hidden" name="latitude" id="latitude">
+                    <input type="hidden" name="longitude" id="longitude">
+                    <div class="form-group">
+                        <label class="form-label" for="start-time">Start Time</label>
+                        <input type="datetime-local" class="form-control" name="start_time" id="start-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reason">Reason</label>
+                        <textarea class="form-control" name="reason" id="reason" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" onclick="getLocationAndSubmit('forgot_checkin')">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+                    
+                </div>
+            </div>
+
+            <div class="landing-center">
+                <div class="work-hr">
+                    <div class="work-hr-top">
+                        <h5>Today working hour</h5>
+                    </div>
+                    <div class="work-hr-bottom">
+                        <div class="checkin">
+                            <ion-icon name="time-outline" class="icon"></ion-icon>
+                            <p id="checkin-time">{{ checkin_time|safe  }}</p>
+                        </div>
+                        <div class="lunch" id="break-hours">
+                            <ion-icon name="fast-food-outline" class="icon"></ion-icon>
+                            <p><span id="break-time">00:00:00</span></p>
+                        </div>
+                        <div class="checkin">
+                            <ion-icon name="time-outline" class="icon"></ion-icon>
+                            <p id="checkin-time">{{ checkout_time|safe }}</p>
+                        </div>
+                        <div class="checkout">
+                            <ion-icon name="timer-outline" class="icon"></ion-icon>
+                            <p id="checkout-time">{{ total_working_hours }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <div class="landing-center">
+            <div class="work-hr-top">
+                <h4> Analysis </h4>
+            </div>
+            <div class="polarchart">
+                <div>
+                    <canvas id="myPolarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {% comment %} <div class="desktop_view_div2">
+
+            <div class="landing-center">
+
+                <div class="project">
+
+                    <div class="work">
+                        <div class="project-work">
+                            <div class="work-name">
+                                <h5>Cuentaz</h5>
+                            </div>
+                            <div class="work-status">
+                                <ion-icon name="time-outline" class="pending"></ion-icon>
+                                <p class="pending">Pending</p>
+                            </div>
+                        </div>
+                        <p>afdf</p>
+                        <div>
+                            <img src="https://imgs.search.brave.com/CbCPtrnZ3kFr8lyvqaVnXEBou-GYwrR5eccyW4KKJiM/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9z/bWlsaW5nLW1hbl8x/MDk4LTE1NDQzLmpw/Zz9zaXplPTYyNiZl/eHQ9anBn"
+                                alt="">
+                        </div>
+                    </div>
+
+                    <div class="work">
+                        <div class="project-work">
+                            <div class="work-name">
+                                <h5>Attendance Management</h5>
+                            </div>
+                            <div class="work-status">
+                                <ion-icon name="time-outline" class="processing"></ion-icon>
+                                <p class="processing">Processing</p>
+                            </div>
+                        </div>
+                        <p>afdf</p>
+                        <div>
+                            <img src="https://imgs.search.brave.com/CbCPtrnZ3kFr8lyvqaVnXEBou-GYwrR5eccyW4KKJiM/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9z/bWlsaW5nLW1hbl8x/MDk4LTE1NDQzLmpw/Zz9zaXplPTYyNiZl/eHQ9anBn"
+                                alt="">
+                            <img src="https://imgs.search.brave.com/CbCPtrnZ3kFr8lyvqaVnXEBou-GYwrR5eccyW4KKJiM/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9z/bWlsaW5nLW1hbl8x/MDk4LTE1NDQzLmpw/Zz9zaXplPTYyNiZl/eHQ9anBn"
+                                alt="">
+                        </div>
+
+                    </div>
+
+                    <div class="work">
+                        <div class="project-work">
+                            <div class="work-name">
+                                <h5>Hasdfdasjd Ssjdf</h5>
+                            </div>
+                            <div class="work-status">
+                                <ion-icon name="time-outline" class="completed"></ion-icon>
+                                <p class="completed">Completed</p>
+                            </div>
+                        </div>
+                        <p>afdf</p>
+                        <div>
+                            <img src="https://imgs.search.brave.com/CbCPtrnZ3kFr8lyvqaVnXEBou-GYwrR5eccyW4KKJiM/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9z/bWlsaW5nLW1hbl8x/MDk4LTE1NDQzLmpw/Zz9zaXplPTYyNiZl/eHQ9anBn"
+                                alt="">
+                        </div>
+                    </div>
+
+                    <div class="pagination">
+                        <a href="#" class="page ">1</a>
+                        <a href="#" class="page active">2</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="landing-center">
+            <div class="work-hr-top">
+                <h4>performance Analysis </h4>
+            </div>
+            <div class="graph">
+                <svg viewBox="0 0 100 100">
+                    <!-- X-axis -->
+                    <line x1="10" y1="90" x2="150" y2="90" stroke="grey" />
+                    <!-- Y-axis -->
+                    <line x1="10" y1="90" x2="10" y2="10" stroke="grey" />
+                    <!-- Line graph 1 -->
+                    <polyline points="20,80 40,60 60,70 80,30" fill="none" class="blue" stroke-width="1" />
+                    <!-- Line graph 2 -->
+                    <polyline points="10,80 30,60 70,70 80,30" fill="none" class="red" stroke-width="1" />
+                </svg>
+            </div>
+        </div>
+        <div class="landing-center">5</div> {% endcomment %}
+        
+        
+
+
+    </div>
+
+    {% endblock %}
+
+    
+
+    {% block landingjs %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function getLocationAndSubmit(action) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var latitude = position.coords.latitude;
+                    var longitude = position.coords.longitude;
+                    document.getElementById('latitude').value = latitude;
+                    document.getElementById('longitude').value = longitude;
+                    document.getElementById('action').value = action;
+                    document.getElementById('forgot-checkin-form').submit();
+                }, function(error) {
+                    alert('Error fetching location: ' + error.message);
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    </script>
+    {% endblock %}

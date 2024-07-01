@@ -1,0 +1,356 @@
+{% extends "company_admin/adminbase.html" %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+    <div class="mt-6 ms-5 me-5" >
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+{% endfor %}
+{% endif %}
+<div class="conatiner-fluid content-inner mt-6 py-0">
+    <div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <div class="header-title">
+                            <h4 class="card-title">Leave Request</h4>
+                        </div>
+                    </div>
+                    <div class="card-body px-0">
+                        <div class="table-responsive">
+                            <table id="user-list-table" class="table table-striped" role="grid"
+                                data-toggle="data-table">
+                                <thead>
+                                    <tr class="blue">
+                                        <th>Profile</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Duration</th>
+                                        <th>Applied On</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th style="min-width: 100px">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if leave_requests %}
+                                    {% for leave_request in leave_requests %}
+                                    <tr>
+                                        <td class="text-center">
+                                            {% if leave_request.employee.employee_images.all %}
+                                                {% with leave_request.employee.employee_images.all.0.employee_image.url as image_url %}
+                                                    <img class="bg-soft-primary rounded img-fluid avatar-40 me-3"
+                                                        src="{{ image_url }}"
+                                                        alt="profile">
+                                                {% endwith %}
+                                            {% else %}
+                                                <img class="bg-soft-primary rounded img-fluid avatar-40 me-3"
+                                                    src="path/to/default_avatar.png"
+                                                    alt="profile">
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ leave_request.employee.employee_name }}</td>
+                                        <td>{{ leave_request.leave.leaves }}</td>
+                                        <td>{{ leave_request.from_date }}</td>
+                                        <td>{{ leave_request.end_date }}</td>
+                                        <td>{{ leave_request.total_days }} {% if leave_request.total_days <= 1 %}Day {% else %}Days{% endif %}</td>
+                                        <td>{{ leave_request.enquery_date }}</td>
+                                        <td>{{ leave_request.reason }}</td>
+                                        <td><span class="badge {% if leave_request.status == 1 %}bg-success{% elif leave_request.status == 0 %}bg-warning{% elif leave_request.status == 3 %}bg-dark{% else %}bg-danger{% endif %}">
+                                            {% if leave_request.status == 0 %}
+                                                Pending
+                                            {% elif leave_request.status == 1 %}
+                                                Approved
+                                            {% elif leave_request.status == 2 %}
+                                                Rejected
+                                            {% elif leave_request.status == 3 %}
+                                                Cancelled
+                                            {% endif %}
+                                        </span></td>
+                                        <td>
+                                            <div class="flex align-items-center list-user-action">
+                                            {% if leave_request.status == 0 %}
+                                                <a class="btn btn-sm btn-icon btn-success" data-toggle="tooltip"
+                                                data-placement="top" title="Approve" href="{% url 'process_leave_request' leave_request.id 'approve' %}">
+                                                    <span class="btn-inner">
+                                                        <svg width="32" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <!-- Check icon -->
+                                                            <path fill="none" stroke="currentColor"
+                                                                stroke-width="1.5" stroke-linecap="round"
+                                                                d="M5.5 12.25L9.25 16L19.75 6" />
+                                                        </svg>
+                                                    </span>
+                                                </a>
+                                                {% endif %}
+                                                {% if leave_request.status == 0 %}
+                                                <a class="btn btn-sm btn-icon btn-warning" data-toggle="tooltip"
+                                                data-placement="top" title="Reject" href="{% url 'process_leave_request' leave_request.id 'reject' %}">
+                                                    <span class="btn-inner">
+                                                        <svg width="32" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <!-- Cross icon -->
+                                                            <path fill="none" stroke="currentColor"
+                                                                stroke-width="1.5" stroke-linecap="round"
+                                                                d="M6.343 6.343l11.314 11.314m0-11.314L6.343 17.657" />
+                                                        </svg>
+                                                    </span>
+                                                </a>
+                                            {% endif %}
+                                                <!-- Call icon -->
+                                                <a class="btn btn-sm btn-icon btn-primary" data-toggle="tooltip"
+                                                    data-placement="top" title="Call" href="tel:{{ leave_request.employee.user.contact_no }}" >
+                                                    <span class="btn-inner">
+                                                        <svg fill="#5fddbe" version="1.1" id="Capa_1"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                            viewBox="0 0 342.514 342.514" xml:space="preserve"
+                                                            transform="rotate(180)">
+                                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
+                                                                stroke-linejoin="round"></g>
+                                                            <g id="SVGRepo_iconCarrier">
+                                                                <g>
+                                                                    <path
+                                                                        d="M171.254,0C76.826,0,0,76.825,0,171.26c0,94.434,76.819,171.254,171.254,171.254c94.434,0,171.26-76.82,171.26-171.254 C342.514,76.825,265.682,0,171.254,0z M241.225,137.474l-18.76,18.777c-4.383,4.377-11.444,4.377-15.816,0l-6.737-6.731 c-0.606-0.609-1.351-0.937-2.132-1.147c-6.209-4.603-14.994-4.155-20.614,1.459l-27.322,27.322 c-5.632,5.62-6.083,14.417-1.465,20.614c0.21,0.781,0.544,1.52,1.138,2.132l6.752,6.737c4.359,4.371,4.371,11.445,0,15.805 l-18.771,18.783c-4.387,4.371-11.445,4.371-15.817,0l-13.478-13.487c-16.727-16.705-16.714-43.907,0-60.621l58.925-58.919 c16.715-16.708,43.91-16.708,60.622,0l13.475,13.472C245.596,126.046,245.596,133.111,241.225,137.474z">
+                                                                    </path>
+                                                                </g>
+                                                            </g>
+                                                        </svg>
+
+                                                    </span>
+                                                </a>
+                                                <!-- WhatsApp icon -->
+                                                <a class="btn btn-sm btn-icon btn-info" data-toggle="tooltip" target="_blank" href="https://wa.me/{{ leave_request.employee.user.contact_no }}"
+                                                    data-placement="top" title="WhatsApp" >
+                                                    <span class="btn-inner">
+                                                        <svg width="32" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <!-- WhatsApp icon -->
+                                                            <svg version="1.1" id="Icons"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                                viewBox="0 0 32 32" xml:space="preserve"
+                                                                fill="#000000">
+                                                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                                <g id="SVGRepo_tracerCarrier"
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"></g>
+                                                                <g id="SVGRepo_iconCarrier">
+                                                                    <style type="text/css">
+                                                                        .st0 {
+                                                                            fill: #FFFFFF;
+                                                                        }
+
+                                                                        .st1 {
+                                                                            fill: #3A559F;
+                                                                        }
+
+                                                                        .st2 {
+                                                                            fill: #F4F4F4;
+                                                                        }
+
+                                                                        .st3 {
+                                                                            fill: #FF0084;
+                                                                        }
+
+                                                                        .st4 {
+                                                                            fill: #0063DB;
+                                                                        }
+
+                                                                        .st5 {
+                                                                            fill: #00ACED;
+                                                                        }
+
+                                                                        .st6 {
+                                                                            fill: #FFEC06;
+                                                                        }
+
+                                                                        .st7 {
+                                                                            fill: #FF0000;
+                                                                        }
+
+                                                                        .st8 {
+                                                                            fill: #25D366;
+                                                                        }
+
+                                                                        .st9 {
+                                                                            fill: #0088FF;
+                                                                        }
+
+                                                                        .st10 {
+                                                                            fill: #314358;
+                                                                        }
+
+                                                                        .st11 {
+                                                                            fill: #EE6996;
+                                                                        }
+
+                                                                        .st12 {
+                                                                            fill: #01AEF3;
+                                                                        }
+
+                                                                        .st13 {
+                                                                            fill: #FFFEFF;
+                                                                        }
+
+                                                                        .st14 {
+                                                                            fill: #F06A35;
+                                                                        }
+
+                                                                        .st15 {
+                                                                            fill: #00ADEF;
+                                                                        }
+
+                                                                        .st16 {
+                                                                            fill: #1769FF;
+                                                                        }
+
+                                                                        .st17 {
+                                                                            fill: #1AB7EA;
+                                                                        }
+
+                                                                        .st18 {
+                                                                            fill: #6001D1;
+                                                                        }
+
+                                                                        .st19 {
+                                                                            fill: #E41214;
+                                                                        }
+
+                                                                        .st20 {
+                                                                            fill: #05CE78;
+                                                                        }
+
+                                                                        .st21 {
+                                                                            fill: #7B519C;
+                                                                        }
+
+                                                                        .st22 {
+                                                                            fill: #FF4500;
+                                                                        }
+
+                                                                        .st23 {
+                                                                            fill: #00F076;
+                                                                        }
+
+                                                                        .st24 {
+                                                                            fill: #FFC900;
+                                                                        }
+
+                                                                        .st25 {
+                                                                            fill: #00D6FF;
+                                                                        }
+
+                                                                        .st26 {
+                                                                            fill: #FF3A44;
+                                                                        }
+
+                                                                        .st27 {
+                                                                            fill: #FF6A36;
+                                                                        }
+
+                                                                        .st28 {
+                                                                            fill: #0061FE;
+                                                                        }
+
+                                                                        .st29 {
+                                                                            fill: #F7981C;
+                                                                        }
+
+                                                                        .st30 {
+                                                                            fill: #EE1B22;
+                                                                        }
+
+                                                                        .st31 {
+                                                                            fill: #EF3561;
+                                                                        }
+
+                                                                        .st32 {
+                                                                            fill: none;
+                                                                            stroke: #FFFFFF;
+                                                                            stroke-width: 2;
+                                                                            stroke-miterlimit: 10;
+                                                                        }
+
+                                                                        .st33 {
+                                                                            fill: #0097D3;
+                                                                        }
+
+                                                                        .st34 {
+                                                                            fill: #01308A;
+                                                                        }
+
+                                                                        .st35 {
+                                                                            fill: #019CDE;
+                                                                        }
+
+                                                                        .st36 {
+                                                                            fill: #FFD049;
+                                                                        }
+
+                                                                        .st37 {
+                                                                            fill: #16A05D;
+                                                                        }
+
+                                                                        .st38 {
+                                                                            fill: #4486F4;
+                                                                        }
+
+                                                                        .st39 {
+                                                                            fill: none;
+                                                                        }
+
+                                                                        .st40 {
+                                                                            fill: #34A853;
+                                                                        }
+
+                                                                        .st41 {
+                                                                            fill: #4285F4;
+                                                                        }
+
+                                                                        .st42 {
+                                                                            fill: #FBBC05;
+                                                                        }
+
+                                                                        .st43 {
+                                                                            fill: #EA4335;
+                                                                        }
+                                                                    </style>
+                                                                    <path class="st8"
+                                                                        d="M17,0C8.7,0,2,6.7,2,15c0,3.4,1.1,6.6,3.2,9.2l-2.1,6.4c-0.1,0.4,0,0.8,0.3,1.1C3.5,31.9,3.8,32,4,32 c0.1,0,0.3,0,0.4-0.1l6.9-3.1C13.1,29.6,15,30,17,30c8.3,0,15-6.7,15-15S25.3,0,17,0z">
+                                                                    </path>
+                                                                    <path class="st0"
+                                                                        d="M25.7,20.5c-0.4,1.2-1.9,2.2-3.2,2.4C22.2,23,21.9,23,21.5,23c-0.8,0-2-0.2-4.1-1.1c-2.4-1-4.8-3.1-6.7-5.8 L10.7,16C10.1,15.1,9,13.4,9,11.6c0-2.2,1.1-3.3,1.5-3.8c0.5-0.5,1.2-0.8,2-0.8c0.2,0,0.3,0,0.5,0c0.7,0,1.2,0.2,1.7,1.2l0.4,0.8 c0.3,0.8,0.7,1.7,0.8,1.8c0.3,0.6,0.3,1.1,0,1.6c-0.1,0.3-0.3,0.5-0.5,0.7c-0.1,0.2-0.2,0.3-0.3,0.3c-0.1,0.1-0.1,0.1-0.2,0.2 c0.3,0.5,0.9,1.4,1.7,2.1c1.2,1.1,2.1,1.4,2.6,1.6l0,0c0.2-0.2,0.4-0.6,0.7-0.9l0.1-0.2c0.5-0.7,1.3-0.9,2.1-0.6 c0.4,0.2,2.6,1.2,2.6,1.2l0.2,0.1c0.3,0.2,0.7,0.3,0.9,0.7C26.2,18.5,25.9,19.8,25.7,20.5z">
+                                                                    </path>
+                                                                </g>
+                                                            </svg> </svg>
+
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </td>
+
+
+                                    </tr>
+                            
+                                    {% endfor %}
+
+                                    
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock  %}

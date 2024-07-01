@@ -1,0 +1,115 @@
+{% extends "employee/employeebase.html" %}
+{% block content %}
+    {% comment %} <div class="landing-top">
+        <div class="landing-top-details">
+            <div class="details-left">
+                <div class="personal-icon">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </div>
+                <div class="user">
+                    <p>Work Information</p>
+                </div>
+            </div>
+
+        </div>
+    </div> {% endcomment %}
+
+    <div class="middle">
+
+        <div class="landing-center">
+            <div class="work-name bold blues" style="display:flex">
+                <a href="{% url "employee_profile" %}" class="mtop"><ion-icon name="arrow-back-outline"></ion-icon></a>
+                <h5>Work Details</h5>
+            </div>
+
+            <div class="row">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td class="left">Username</td>
+                            <td class="right">{{ employee_info.employee_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Employee ID</td>
+                            <td class="right">{{ employee_info.employee_code }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Date of Joining</td>
+                            <td class="right">{{ employee.join_date }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Department</td>
+                            <td class="right">{{ employee.department.department}}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Designation</td>
+                            <td class="right">
+                                {% for emp_designation in employee.designations %}
+                                    {{ emp_designation.designation.designation }}
+                                {% endfor %}
+                        </td>
+                        </tr>
+                        <tr>
+                            <td class="left">Work Phone</td>
+                            <td class="right">{{ employee_info.user.contact_no }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Work Email</td>
+                            <td class="right">{{ employee.email }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Work Location</td>
+                            <td class="right">{{ employee.location.city }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Manager</td>
+                            <td class="right">sdgfdhfsf</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Employee Contract</td>
+                            <td class="right">142342353252</td>
+                        </tr>
+                        
+
+                    </tbody>
+                </table>
+            </div>
+
+
+
+        </div>
+
+
+        <div class="landing-center">
+            <div class="work-name bold blues">
+                <h5>Bank Details</h5>
+            </div>
+
+            <div class="row">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td class="left">Bank Name</td>
+                            <td class="right">Some Name</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Account Number</td>
+                            <td class="right">987dfdsf6543212</td>
+                        </tr>
+                        <tr>
+                            <td class="left">Branch Address</td>
+                            <td class="right">dsfjasdfadf</td>
+                        </tr>
+                       
+                        
+
+                    </tbody>
+                </table>
+            </div>
+
+
+
+        </div>
+    </div>
+{% endblock  %}
+ 

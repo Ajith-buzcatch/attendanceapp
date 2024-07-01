@@ -1,0 +1,43 @@
+{% extends "company_admin/adminbase.html" %}
+
+{% block content %}
+
+    <div class="row" style="padding: 40px;" >
+        <div class="col-xl-3 col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Add Leave Balance</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="form-label">Employees List</label>
+                            <select name="employee" id="employee" class="selectpicker form-control" data-style="py-0">
+                                <option value="">Select User</option>
+                                {% for employee in employees %}
+                                    <option value="{{ employee.id }}">{{ employee.employee_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        
+                            {% for leave in leave_types %}
+                                <label class="form-label" for="leave_{{ leave.id }}">{{ leave.leaves }}:</label>
+                                <input type="number" class="form-control" id="leave_{{ leave.id }}" name="leave_{{ leave.id }}" value="0">
+                                <br>
+                            {% endfor %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Submit</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock  %}

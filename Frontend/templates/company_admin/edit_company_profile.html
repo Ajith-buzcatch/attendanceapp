@@ -1,0 +1,51 @@
+{% extends "company_admin/adminbase.html" %}
+
+{% block title %}Edit Company Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4 class="mb-0">Edit Company Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="company_name">Company Name</label>
+                            <input type="text" class="form-control" id="company_name" name="company_name" value="{{ company.company_name }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea class="form-control" id="address" name="address">{{ company.address }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <select name="city" id="city" class="form-control">
+                                {% for city in cities %}
+                                    <option value="{{ city.id }}" {% if company.city == city %} selected {% endif %}>{{ city.city }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg_no">Registration No</label>
+                            <input type="text" class="form-control" id="reg_no" name="reg_no" value="{{ company.reg_no }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="company_icon">Company Icon</label>
+                            <input type="file" class="form-control-file" id="company_icon" name="company_icon">
+                        </div>
+                        <div class="form-group">
+                            <label for="company_logo">Company Logo</label>
+                            <input type="file" class="form-control-file" id="company_logo" name="company_logo">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

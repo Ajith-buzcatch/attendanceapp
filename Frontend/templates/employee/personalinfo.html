@@ -1,0 +1,75 @@
+{% extends "employee/employeebase.html" %}
+{% block content %}
+<div class="middle">
+    <div class="landing-center">
+        <div class="work-name bold blues" style="display:flex">
+            <a href="{% url "employee_profile" %}" class="mtop"><ion-icon name="arrow-back-outline"></ion-icon></a>
+            <h5>General Info</h5>
+        </div>
+
+        <div class="row">
+            <table class="table personal">
+                <tbody>
+                    <tr>
+                        <td class="left">Full Name</td>
+                        <td class="right">{{ employee_info.user.get_full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Phone Number</td>
+                        <td class="right">{{ employee_info.user.contact_no }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Email</td>
+                        <td class="right">{{ employee_info.user.email }}</td>
+                    </tr>
+                    {% comment %} <tr>
+                        <td class="left">Date of Birth</td>
+                        <td class="right">19/02/2001</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Gender</td>
+                        <td class="right">Male</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Marital Status</td>
+                        <td class="right">Married</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Blood Group</td>
+                        <td class="right">A+</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Nationality</td>
+                        <td class="right">India</td>
+                    </tr> {% endcomment %}
+                    <tr>
+                        <td class="left">Address</td>
+                        <td class="right">{{ employee_info.address }}</td>
+                    </tr>
+                    {% comment %} <tr>
+                        <td class="left">Identification No</td>
+                        <td class="right">142342353252</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Field of study</td>
+                        <td class="right">MCA</td>
+                    </tr>
+                    <tr>
+                        <td class="left">School</td>
+                        <td class="right">ahfgfajhfoa hdfoahdfjh</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Emergency Contact</td>
+                        <td class="right">iafabef</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Emergency Phone</td>
+                        <td class="right">142342353252</td>
+                    </tr> {% endcomment %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock  %}

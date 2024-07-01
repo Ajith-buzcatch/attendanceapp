@@ -1,0 +1,67 @@
+{% extends "employee/employeebase.html" %}
+{% load static %}
+{% block profilecss %}
+<link rel="stylesheet" href="{% static 'employee/css/personal.css' %}">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+{% endblock  %}
+{% block content %}
+<div class="middle">
+
+    {% comment %} <div class="landing-center">
+        <div class="work-hr">
+            <div class="work-hr-bottom">
+                <div class="checkin">
+                    <p class="blues bold">5</p>
+                    <p>Monthly Attendance</p>
+                </div>
+                <div class="lunch">
+                    <p class="blues bold">4</p>
+                    <p>Monthly Hours</p>
+                </div>
+                <div class="tea">
+                    <p class="blues bold">4</p>
+                    <p>Monthly Late</p>
+                </div>
+                <div class="checkout">
+                    <p class="blues bold">8</p>
+                    <p>Remaining Leaves</p>
+                </div>
+            </div>
+        </div>
+    </div> {% endcomment %}
+
+
+    <div class="landing-center">
+
+        <div class="row">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td class="left"><ion-icon name="person-outline" class="icon"></ion-icon> <a href="{% url "employee_personal_info" %}">Personal Information</a></td>
+                        <td class="right"><ion-icon name="chevron-forward-outline" class="icon"></ion-icon></td>
+                    </tr>
+                    <tr>
+                        <td class="left"><ion-icon name="bag-outline" class="icon"></ion-icon> Work Information</td>
+                        <td class="right"><ion-icon name="chevron-forward-outline" class="icon"></ion-icon></td>
+                    </tr>
+                    <tr>
+                        <td class="left"><ion-icon name="lock-closed-outline" class="icon"></ion-icon> Change Password</td>
+                        <td class="right"><ion-icon name="chevron-forward-outline" class="icon"></ion-icon></td>
+                    </tr>
+                    <tr>
+                        <td class="left"><ion-icon name="settings-outline" class="icon"></ion-icon> Settings</td>
+                        <td class="right"><ion-icon name="chevron-forward-outline" class="icon"></ion-icon></td>
+                    </tr>
+                    <tr>
+                        <td class="left"><ion-icon name="log-out-outline" class="logout-icon"></ion-icon> <a href="{% url "employee_logout" %}">Logout</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock  %}
+{% block profilejs %}
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock  %}

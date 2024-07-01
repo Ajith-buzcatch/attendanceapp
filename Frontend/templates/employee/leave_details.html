@@ -1,0 +1,54 @@
+{% extends "employee/employeebase.html" %}
+{% block content %}
+<div class="middle">
+    <div class="landing-center" >
+        <div class="work-name bold blues" style="display:flex">
+            <a href="{% url "leave" %}" class="mtop"><ion-icon name="arrow-back-outline"></ion-icon></a>
+            <h5>{{ leave_request.employee.employee_name }} on {{ leave_request.leave.leaves }}: {{ leave_request.total_days }} days</h5>
+            <hr>
+        </div>
+        <div class="row">
+            <table class="table personal">
+                <tbody>
+                    <tr>
+                        <td class="left">Leave Type</td>
+                        <td class="right">{{ leave_request.leave.leaves }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">From</td>
+                        <td class="right">{{ leave_request.from_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">To</td>
+                        <td class="right">{{ leave_request.end_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Duration</td>
+                        <td class="right">{{ leave_request.total_days }} Days</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Applied on</td>
+                        <td class="right">{{ leave_request.enquery_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Applied to</td>
+                        <td class="right">{{ leave_request.applied_to }}</td>
+                    </tr>
+                    <tr>
+                        <td class="left">Status</td>
+                        {% if leave_request.status ==  1 %}
+                        <td class="right">Approved</td>
+                        {% elif leave_request.status == 2 %}
+                        <td class="right">Rejected</td>
+                        {% elif leave_request.status == 0 %}
+                        <td class="right">Pending</td>
+                        {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock  %}

@@ -1,0 +1,210 @@
+{% extends "employee/employeebase.html" %}
+
+{% block content %}
+
+    <div class="middle">
+
+        <div class="desktop_view_div1">
+
+            <div class="landing-center">
+                <div class="work-name bold blues">
+                    <h5>Attendance Stats</h5>
+                </div>
+                <div class="leave-overview">
+                    <div class="leave_no">
+                        <p class="leave_days available">{{ monthly_days }}</p>
+                        <p>Monthly Attendance</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days approved">{{ monthly_hours }}</p>
+                        <p>Monthly Hours</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days pending">{{ weekly_hours }}</p>
+                        <p>Weekly Hours</p>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="landing-center">
+                <div class="work-name bold blues">
+                    <h5>Leave Stats</h5>
+                </div>
+                <div class="leave-overview">
+                    <div class="leave_no">
+                        <p class="leave_days available">{{ available_leave_balance }}</p>
+                        <p>Available</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days approved">{{ approved_leave_count }}</p>
+                        <p>Approved</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days pending">{{ pending_leave_count }}</p>
+                        <p>Pending</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days applied">{{ applied_leave_count }}</p>
+                        <p>Applied</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days rejected">{{ rejected_leave_count }}</p>
+                        <p>Rejected</p>
+                    </div>
+                    <div class="leave_no">
+                        <p class="leave_days total">{{ leave_balance }}</p>
+                        <p>Total Leave</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if leave_requests %}
+        <div class="container">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                        aria-controls="home" aria-selected="true">All</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                        aria-controls="profile" aria-selected="false">Pending</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
+                        aria-controls="contact" aria-selected="false">History</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="landing-container">
+                        
+                    
+                    {% for leave in leave_requests %}
+                    <div class="landing-center centers top" onclick="location.href='{% url 'leave_details' leave.id %}';">
+                        <div class="landing-center-data">
+                            <div class="data-top">
+                                <div class="data-top-left">
+                                    <div class="date">
+                                        <p class="grey">Date</p>
+                                        <p class="blues bold">{{ leave.from_date }} - {{ leave.end_date }}</p>
+                                    </div>
+                                </div>
+                                <div class="data-top-right">
+                                    {% if leave.status == 1 %}
+                                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                    <p class="text-success">Approved</p>
+                                    {% elif leave.status == 0 %}
+                                    <ion-icon name="time-outline" class="text-warning"></ion-icon>
+                                    <p class="text-warning">Pending</p>
+                                    {% elif leave.status == 2 %}
+                                    <ion-icon name="close-circle-outline" class="text-danger"></ion-icon>
+                                    <p class="text-danger">Rejected</p>
+                                    {% elif leave.status == 3 %}
+                                    <ion-icon name="close-circle-outline" class="text-danger"></ion-icon>
+                                    <p class="text-danger">Cancelled</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="data-middle">
+                                <div class="data-date">
+                                    <div class="date">
+                                        <p>Leave Type</p>
+                                        <p class="blues bold">{{ leave.leave.leaves }}</p>
+                                    </div>
+                                </div>
+                                <div class="data-date">
+                                    <div class="date">
+                                        <p>Applied Days</p>
+                                        <p class="blues bold">{{ leave.total_days }} {% if leave.total_days <= 1 %}Day {% else %}Days{% endif %}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                </div>
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    {% for leave in leave_requests %}
+                        {% if leave.status == 0 %}
+                        <div class="desktop_view_div1">
+                            <div class="landing-center centers top" onclick="location.href='{% url 'leave_details' leave.id %}';">
+                                <div class="landing-center-data">
+                                    <div class="data-top">
+                                        <div class="data-top-left">
+                                            <div class="date">
+                                                <p class="grey">Date</p>
+                                                <p class="blues bold">{{ leave.from_date }} - {{ leave.end_date }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="data-top-right">
+                                            <ion-icon name="time-outline" class="text-warning"></ion-icon>
+                                            <p class="text-warning">Pending</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="data-middle">
+                                        <div class="data-date">
+                                            <div class="date">
+                                                <p>Leave Type</p>
+                                                <p class="blues bold">{{ leave.leave.leaves }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="data-date">
+                                            <div class="date">
+                                                <p>Applied Days</p>
+                                                <p class="blues bold">{{ leave.total_days }} Days</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                    {% for leave in leave_requests %}
+                        {% if leave.status == 1 %}
+                        <div class="landing-center centers top" onclick="location.href='{% url 'leave_details' leave.id %}';">
+                            <div class="landing-center-data">
+                                <div class="data-top">
+                                    <div class="data-top-left">
+                                        <div class="date">
+                                            <p class="grey">Date</p>
+                                            <p class="blues bold">{{ leave.from_date }} - {{ leave.end_date }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="data-top-right">
+                                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                        <p class="text-success">Approved</p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="data-middle">
+                                    <div class="data-date">
+                                        <div class="date">
+                                            <p>Leave Type</p>
+                                            <p class="blues bold">{{ leave.leave.leaves }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="data-date">
+                                        <div class="date">
+                                            <p>Applied Days</p>
+                                            <p class="blues bold">{{ leave.total_days }} Days</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+{% endblock  %}

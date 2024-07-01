@@ -1,0 +1,92 @@
+:root {
+    --color-green: green;
+    --color-blue: blue;
+    --color-orange: orange;
+    --color-purple: purple;
+    --color-red: red;
+    --color-black: black;
+}
+
+.leave-overview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.leave_no {
+    flex: 1 1 calc(33.333% - 1rem);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.leave_days {
+    font-size: larger;
+}
+
+
+.leave_days.available {
+    color: var(--color-green);
+}
+
+.leave_days.approved {
+    color: var(--color-blue);
+}
+
+.leave_days.pending {
+    color: var(--color-orange);
+}
+
+.leave_days.applied {
+    color: var(--color-purple);
+}
+
+.leave_days.rejected {
+    color: var(--color-red);
+}
+
+.leave_days.total {
+    color: var(--color-black);
+}
+
+.card table td{
+    line-height: 20px;
+}
+
+.ht{
+    min-height: 50px;
+}
+
+.badge.bg-danger,
+.badge.bg-success,
+.badge.bg-warning {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em 0.75em;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+}
+
+.badge.bg-danger ion-icon {
+    font-size: 1.25rem;
+    vertical-align: middle;
+    color: white;
+}
+
+.badge.bg-danger:hover ion-icon {
+    color: #f8d7da;
+}
+
+@media(min-width:768px){
+    .landing-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px; /* Optional: Adds space between items */
+    }
+    
+    .centers {
+        flex: 1 1 calc(50% - 20px) !important ; /* 50% width minus gap */
+        box-sizing: border-box; /* Ensures padding/margin don't affect width */
+        max-width: calc(50% - 20px); /* Ensures max width for larger screens */
+    }    

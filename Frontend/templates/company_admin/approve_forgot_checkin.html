@@ -1,0 +1,34 @@
+{% extends 'company_admin/adminbase.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% comment %} <h2>Approve Forgot Check-In Request</h2> {% endcomment %}
+    <div class="card">
+        <div class="card-body">
+            <div class="work-name bold blues" style="display:flex">
+                <a href="{% url "admin_forgot_checkin_list" %}" class="mtop"><ion-icon name="arrow-back-outline"></ion-icon><-- </a>&nbsp;
+                <h5 class="card-title"> Request Details</h5>
+            </div> <br>
+            <p><strong>Employee:</strong> {{ forgot_checkin.employee.user.username }}</p>
+            {% comment %} <p><strong>Company:</strong> {{ forgot_checkin.company.name }}</p> {% endcomment %}
+            <p><strong>Requested Time:</strong> {{ forgot_checkin.normal_login_time }}</p>
+            <p><strong>Submitted At:</strong> {{ forgot_checkin.current_time }}</p>
+            <p><strong>Location:</strong> {{ forgot_checkin.location }}</p>
+            <p><strong>Reason:</strong> {{ forgot_checkin.reason }}</p>
+            <form method="POST" action="{% url 'approve_forgot_checkin' forgot_checkin.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="approval">Approval</label>
+                    <select class="form-control" id="approval" name="approval" required>
+                        <option value="">Select an option</option>
+                        <option value="approve">Approve</option>
+                        <option value="reject">Reject</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="{% url 'admin_forgot_checkin_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
