@@ -1,0 +1,40 @@
+{% load static %}
+
+<div class="landing-center">
+    <div class="work-hr">
+        <div class="work-hr-top">
+            <h5>Today working hour</h5>
+        </div>
+        <div class="work-hr-bottom">
+            <div class="checkin">
+                <ion-icon name="time-outline" class="icon"></ion-icon>
+                {% if checkin_time %}
+                <p id="checkin-time">{{ checkin_time|safe  }}</p>
+                {% else %}
+                <p id="checkin-time">00:00:00</p>
+                {% endif %}
+                
+            </div>
+            <div class="lunch" id="break-hours">
+                <ion-icon name="fast-food-outline" class="icon"></ion-icon>
+                <p><span id="break-time">00:00:00</span></p>
+            </div>
+            <div class="checkin">
+                <ion-icon name="time-outline" class="icon"></ion-icon>
+                {% if checkout_time %}
+                <p id="checkin-time">{{ checkout_time|safe }}</p>
+                {% else %}
+                <p id="checkin-time">00:00:00</p>
+                {% endif %}   
+            </div>
+            <div class="checkout">
+                <ion-icon name="timer-outline" class="icon"></ion-icon>
+                {% if total_working_hours %}
+                <p id="checkout-time">{{ total_working_hours }}</p>
+                {% else %}
+                <p id="checkout-time">00:00:00</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

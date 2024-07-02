@@ -1,0 +1,39 @@
+{% load static %}
+{% load custom_tags %}
+<div class="landing-top">
+    <div class="landing-top-details">
+        
+        <div class="details" >
+            <a href="{% url 'employee_index' %}"><img src="{% static 'employee\images\buz@book.png' %}" alt=""></a>
+
+        </div>
+        <div class="details-left">
+            {% if employee %}
+                <div class="user">
+                    <p class="bold name_bottom">{{ employee.first_name }} {{ employee.last_name }}</p>
+                    <p class="grey user-position">
+                        {% for emp_designation in employee.designations %}
+                            {{ emp_designation.designation.designation }}
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="dropdown ">
+                    <button class="  dropdown-toggle" type="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: none;border: none;">
+                        {% if employee.image_url %}
+                        <img src="{{ employee.image_url }}" alt="Profile Picture">
+                        {% endif %}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="{% url 'employee_profile' %}">My Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url "employee_logout" %}">Logout</a>
+                    </div>
+                </div>
+               
+            {% else %}
+                <p>No employee information available.</p>
+            {% endif %}
+        </div>
+    
+    </div>
+</div>

@@ -1,0 +1,32 @@
+{% load static %}
+<div class="landing-center">
+    <div class="work-name bold blues">
+        <h5>Leave Stats</h5>
+    </div>
+    <div class="leave-overview">
+        <div class="leave_no">
+            <p class="leave_days available">{{ available_leave_balance }}</p>
+            <p>Available</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days approved">{{ approved_leave_count }}</p>
+            <p>Approved</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days pending">{{ pending_leave_count }}</p>
+            <p>Pending</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days applied">{{ applied_leave_count }}</p>
+            <p>Applied</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days rejected">{{ rejected_leave_count }}</p>
+            <p>Rejected</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days total">{{ leave_balance }}</p>
+            <p>Total Leave</p>
+        </div>
+    </div>
+</div>

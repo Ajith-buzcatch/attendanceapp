@@ -1,0 +1,20 @@
+{% load static %}
+<div class="landing-center">
+    <div class="work-name bold blues">
+        <h5>Attendance Stats</h5>
+    </div>
+    <div class="leave-overview">
+        <div class="leave_no">
+            <p class="leave_days available">{{ monthly_days }}</p>
+            <p>Monthly Attendance</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days approved">{{ monthly_hours }}</p>
+            <p>Monthly Hours</p>
+        </div>
+        <div class="leave_no">
+            <p class="leave_days pending">{{ weekly_hours }}</p>
+            <p>Weekly Hours</p>
+        </div>
+    </div>
+</div>

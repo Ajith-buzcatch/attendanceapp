@@ -81,136 +81,13 @@
 </head>
 
 <body>
-    <div class="landing-top">
-        <div class="landing-top-details">
-            
-            <div class="details" >
-                <a href="{% url 'employee_index' %}"><img src="{% static 'employee\images\buz@book.png' %}" alt=""></a>
-
-            </div>
-            <div class="details-left">
-                {% if employee %}
-                    <div class="user">
-                        <p class="bold name_bottom">{{ employee.first_name }} {{ employee.last_name }}</p>
-                        <p class="grey user-position">
-                            {% for emp_designation in employee.designations %}
-                                {{ emp_designation.designation.designation }}
-                            {% endfor %}
-                        </p>
-                    </div>
-                    <div class="dropdown ">
-                        <button class="  dropdown-toggle" type="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background: none;border: none;">
-                            {% if employee.image_url %}
-                            <img src="{{ employee.image_url }}" alt="Profile Picture">
-                            {% endif %}
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="{% url 'employee_profile' %}">My Profile</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{% url "employee_logout" %}">Logout</a>
-                        </div>
-                    </div>
-                   
-                {% else %}
-                    <p>No employee information available.</p>
-                {% endif %}
-            </div>
-        
-        </div>
-    </div>
+    {% include "employee/header.html" %}
     
     {% block content %}
     
     {% endblock  %}
 
-    <div class="landing-bottom">
-        <div class="navigation">
-            <ul>
-                <li class="list {% active request 'employee_index' %}">
-                    <a href="{% url "employee_index" %}">
-                        <span class="icon">
-                            <ion-icon name="home-outline"></ion-icon>
-                        </span>
-                        <span class="text">Home</span>
-                    </a>
-                </li>
-                <li class="list {% active request 'leave' %}">
-                    <a href="{% url 'leave' %}">
-                        <span class="icon">
-                            <ion-icon name="briefcase-outline"></ion-icon>
-                        </span>
-                        <span class="text">Leave</span>
-                    </a>
-                </li>
-                <li class="list {% active request 'leave_form' %}">
-                    <a href="{% url 'leave_form' %}">
-                        <span class="icon ">
-                            <ion-icon name="add-outline"></ion-icon>
-                        </span>
-                    </a>
-                </li>
-                <li class="list {% active request 'reports' %}">
-                    <a href="{% url 'reports' %}">
-                        <span class="icon">
-                            <ion-icon name="document-text-outline"></ion-icon>
-                        </span>
-                        <span class="text">Report</span>
-                    </a>
-                </li>
-                <li class="list {% active request 'employee_profile' %}">
-                    <a href="{% url "employee_profile" %}">
-                        <span class="icon">
-                            <ion-icon name="person-outline"></ion-icon>
-                        </span>
-                        <span class="text">Profile</span>
-                    </a>
-                </li>
-                {% comment %} <li class="list">
-                    <form action="{% url 'employee_logout' %}" method="post">
-                        {% csrf_token %}
-                        <!-- Assuming you want a button for logout -->
-                            <span class="icon">
-                                <ion-icon name="log-out-outline"></ion-icon>
-                            </span>
-                            <span class="text">Logout</span>
-                        
-                    </form> 
-                    <a href="{% url 'employee_logout' %}">
-                        <span class="icon">
-                            <ion-icon name="log-out-outline"></ion-icon>
-                        </span>
-                        
-                    </a>
-                </li> {% endcomment %}
-                <div class="indicator"></div>
-            </ul>
-        </div>
-    </div>
-    <div class="fab-wrapper">
-        <input id="fabCheckbox" type="checkbox" class="fab-checkbox" />
-        <label class="fab" for="fabCheckbox">
-            <span class="fab-dots fab-dots-1"></span>
-            <span class="fab-dots fab-dots-2"></span>
-            <span class="fab-dots fab-dots-3"></span>
-        </label>
-        <div class="fab-wheel">
-            <a class="fab-action fab-action-1" href="{% url 'employee_index' %}">
-                <ion-icon name="home-outline"></ion-icon>
-            </a>
-            <a class="fab-action fab-action-2" href="{% url 'leave' %}">
-                <ion-icon name="list-outline"></ion-icon>
-            </a>
-            <a class="fab-action fab-action-3" href="{% url 'reports' %}">
-                <ion-icon name="apps-outline"></ion-icon>
-            </a>
-            <a class="fab-action fab-action-4" href="{% url 'employee_profile' %}">
-                <ion-icon name="person-outline"></ion-icon>
-            </a>
-            <a class="fab-action fab-action-5" href="{% url 'leave_form' %}">
-                <ion-icon name="add-outline"></ion-icon>
-            </a>
-        </div>
-    </div>
+    {% include "employee/sidenavbar.html" %}
 
     {% block profilejs %}
 
