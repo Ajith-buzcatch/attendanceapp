@@ -1,4 +1,5 @@
 {% load static %}
+
 <div class="landing-center">
 
     <div class="landing-center-data">
@@ -83,13 +84,36 @@
                             <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
                             <span class="bold">Check Out</span>
                         </button>
+                        
                     </div>
                 {% endif %}
+                
             </div>
         </form>
+
         
     </div>
     
+</div>
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="checkoutModalLabel">Confirm Checkout</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to check out?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button id="confirm-checkout" type="button" class="btn btn-primary">Yes, Checkout</button>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- Modal for Forgot CheckIn -->
 <div class="modal fade" id="forgotCheckinModal" tabindex="-1" aria-labelledby="forgotCheckinLabel" aria-hidden="true">

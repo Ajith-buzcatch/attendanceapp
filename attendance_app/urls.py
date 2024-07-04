@@ -46,7 +46,7 @@ urlpatterns = [
     path('password-reset/verify-otp/<str:email>/', views.password_reset_verify_otp, name='password_reset_verify_otp'),
     path('password-reset/set-new-password/<str:email>/', views.set_new_password, name='set_new_password'),
   
-
+    
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

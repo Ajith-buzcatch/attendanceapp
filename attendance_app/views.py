@@ -1261,28 +1261,24 @@ def set_new_password(request, email):
 #             return render(request, 'employee/verify_otp.html', {'error': 'Invalid mobile number or OTP'})
 
 #     return render(request, 'employee/verify_otp.html')
-
+from django.db.models import Sum, Count
 @login_required(login_url='employee_login')
 def Leave(request):
-    employee = EmployeeMaster.objects.get(user=request.user)
+    employee = EmployeeMaster.objects.select_related('user').get(user=request.user)
     leave_requests = LeaveEnquiry.objects.filter(employee=employee).order_by('enquery_date')
-    
     
     for leave in leave_requests:
         if leave.from_date and leave.end_date:
             days = (leave.end_date - leave.from_date).days + 1
             if leave.half_day_option:
                 if leave.from_date == leave.end_date:
-                    days = 0.5 #half day leave
+                    days = 0.5 # half day leave
                 else:
-                    days -= 0.5 #deduct half day if any day is half-day leave
-            
+                    days -= 0.5 # deduct half day if any day is half-day leave
         else:
             days = 0
-        
         leave.total_days = days
-        
-    employee = EmployeeMaster.objects.get(user=request.user)
+    
     today = now().date()
     start_of_month = today.replace(day=1)
     start_of_week = today - timedelta(days=today.weekday())
@@ -1292,12 +1288,16 @@ def Leave(request):
         employee=employee,
         login_datetime__date__gte=start_of_month,
         logout_datetime__date__lte=today
-    )
-    monthly_days = monthly_attendances.values('login_datetime__date').distinct().count()
+    ).annotate(day_count=Count('login_datetime__date', distinct=True))
+
+    monthly_days = monthly_attendances.aggregate(monthly_days=Count('login_datetime__date', distinct=True))['monthly_days']
 
     # Monthly hours
-    monthly_hours = sum([(attendance.logout_datetime - attendance.login_datetime).seconds for attendance in monthly_attendances if attendance.logout_datetime and attendance.login_datetime]) / 3600
-    monthly_hours = round(monthly_hours, 2)  # Round to 2 decimal places
+    monthly_hours = monthly_attendances.aggregate(
+        total_seconds=Sum('logout_datetime__date') - Sum('login_datetime__date')
+    )['total_seconds'] or 0
+
+    monthly_hours = round(monthly_hours / 3600, 2)  # Round to 2 decimal places
 
     # Weekly hours
     weekly_attendances = AttendanceMaster.objects.filter(
@@ -1305,54 +1305,45 @@ def Leave(request):
         login_datetime__date__gte=start_of_week,
         logout_datetime__date__lte=today
     )
-    weekly_hours = sum([(attendance.logout_datetime - attendance.login_datetime).seconds for attendance in weekly_attendances if attendance.logout_datetime and attendance.login_datetime]) / 3600
-    weekly_hours = round(weekly_hours, 2)  # Round to 2 decimal places
-    
+
+    weekly_hours = weekly_attendances.aggregate(
+        total_seconds=Sum('logout_datetime__date') - Sum('login_datetime__date')
+    )['total_seconds'] or 0
+
+    weekly_hours = round(weekly_hours / 3600, 2)  # Round to 2 decimal places
+
     # Retrieve available leave balance
-    try:
-        add_leave_instances = AddLeave.objects.filter(employee=employee)
-        available_leave_balance = 0
-        leave_balance = 0
-        total_leave_count = {}
-        total_leave_balance = {}
-        
-    
-        for add_leave_instance in add_leave_instances:
-            available_leave_balance += add_leave_instance.available_leave_balance
-            leave_balance += add_leave_instance.leave_balance
-            
-    except AddLeave.DoesNotExist:
-        available_leave_balance = {} 
-        leave_balance = {} # Handle case where no AddLeave object exists
-    except AddLeave.MultipleObjectsReturned:
-        # Handle case where multiple AddLeave objects exist
-        add_leave_objects = AddLeave.objects.filter(employee=employee)
-        available_leave_balance = add_leave_objects.first().available_leave_balance if add_leave_objects.exists() else 0
-        available_leave_balance = {}
-        
-        
+    add_leave_instances = AddLeave.objects.filter(employee=employee)
+    leave_balance_agg = add_leave_instances.aggregate(
+        available_leave_balance=Sum('available_leave_balance'),
+        leave_balance=Sum('leave_balance')
+    )
+
+    available_leave_balance = leave_balance_agg['available_leave_balance'] or 0
+    leave_balance = leave_balance_agg['leave_balance'] or 0
+
     # Calculate leave statistics
-    approved_leave_count = leave_requests.filter(status=1).count()
-    pending_leave_count = leave_requests.filter(status=0).count()
-    applied_leave_count = leave_requests.count()
-    rejected_leave_count = leave_requests.filter(status=2).count()
-    
-    
+    leave_counts = leave_requests.aggregate(
+        approved_leave_count=Count('id', filter=Q(status=1)),
+        pending_leave_count=Count('id', filter=Q(status=0)),
+        applied_leave_count=Count('id'),
+        rejected_leave_count=Count('id', filter=Q(status=2)),
+    )
+
     context = {
         'monthly_days': monthly_days,
         'monthly_hours': monthly_hours,
         'weekly_hours': weekly_hours,
-        'leave_requests':leave_requests,
+        'leave_requests': leave_requests,
         'available_leave_balance': available_leave_balance,
-        'approved_leave_count': approved_leave_count,
-        'pending_leave_count': pending_leave_count,
-        'applied_leave_count': applied_leave_count,
-        'rejected_leave_count': rejected_leave_count,
+        'approved_leave_count': leave_counts['approved_leave_count'],
+        'pending_leave_count': leave_counts['pending_leave_count'],
+        'applied_leave_count': leave_counts['applied_leave_count'],
+        'rejected_leave_count': leave_counts['rejected_leave_count'],
         'leave_balance': leave_balance,
     }
 
-    
-    return render(request,'employee/leave.html',context)
+    return render(request, 'employee/leave.html', context)
 
 @login_required(login_url='employee_login')
 def LeaveDetails(request, leave_id):
