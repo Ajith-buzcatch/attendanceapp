@@ -1266,6 +1266,7 @@ from django.db.models import Sum, Count
 def Leave(request):
     employee = EmployeeMaster.objects.select_related('user').get(user=request.user)
     leave_requests = LeaveEnquiry.objects.filter(employee=employee).order_by('enquery_date')
+    monthly_days, monthly_hours, weekly_hours = calculate_attendance_statistics(employee)
     
     for leave in leave_requests:
         if leave.from_date and leave.end_date:
@@ -1279,39 +1280,7 @@ def Leave(request):
             days = 0
         leave.total_days = days
     
-    today = now().date()
-    start_of_month = today.replace(day=1)
-    start_of_week = today - timedelta(days=today.weekday())
-
-    # Monthly attendance
-    monthly_attendances = AttendanceMaster.objects.filter(
-        employee=employee,
-        login_datetime__date__gte=start_of_month,
-        logout_datetime__date__lte=today
-    ).annotate(day_count=Count('login_datetime__date', distinct=True))
-
-    monthly_days = monthly_attendances.aggregate(monthly_days=Count('login_datetime__date', distinct=True))['monthly_days']
-
-    # Monthly hours
-    monthly_hours = monthly_attendances.aggregate(
-        total_seconds=Sum('logout_datetime__date') - Sum('login_datetime__date')
-    )['total_seconds'] or 0
-
-    monthly_hours = round(monthly_hours / 3600, 2)  # Round to 2 decimal places
-
-    # Weekly hours
-    weekly_attendances = AttendanceMaster.objects.filter(
-        employee=employee,
-        login_datetime__date__gte=start_of_week,
-        logout_datetime__date__lte=today
-    )
-
-    weekly_hours = weekly_attendances.aggregate(
-        total_seconds=Sum('logout_datetime__date') - Sum('login_datetime__date')
-    )['total_seconds'] or 0
-
-    weekly_hours = round(weekly_hours / 3600, 2)  # Round to 2 decimal places
-
+    
     # Retrieve available leave balance
     add_leave_instances = AddLeave.objects.filter(employee=employee)
     leave_balance_agg = add_leave_instances.aggregate(

@@ -30,7 +30,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="path/to/chartjs/dist/chart.umd.js"></script>
     <script>
         // Fetching data from Django context variables
         const weeklyAttendance = {{ weekly_attendance }};
@@ -66,11 +65,65 @@
             }
         });
     </script>
+
+    <script>
+        function updateDateTime() {
+            const dateElement = document.getElementById('current-date');
+            const timeElement = document.getElementById('current-time');
+            const hiddenDateElement = document.getElementById('hidden-date');
+            const hiddenDateElementForgot = document.getElementById('forgot-hidden-date');
+    
+            const now = new Date();
+    
+            // Format date as 'DD MMM YYYY'
+            const options = { year: 'numeric', month: 'short', day: '2-digit' };
+            const currentDate = now.toLocaleDateString('en-US', options);
+    
+            // Format time as 'HH:MM AM/PM'
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const currentTime = now.toLocaleTimeString('en-US', timeOptions);
+    
+            // Combine date and time for hidden input
+            const dateTimeOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const currentDateTime = now.toLocaleString('en-US', dateTimeOptions);
+
+            // Combine date and time for hidden input
+            const forgotdateTimeOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const forgotcurrentDateTime = now.toLocaleString('en-US', forgotdateTimeOptions);
+    
+            dateElement.textContent = currentDate;
+            timeElement.textContent = currentTime;
+            hiddenDateElement.value = currentDateTime;
+            hiddenDateElementForgot.value = forgotcurrentDateTime;
+        }
+    
+        // Update the date and time when the page loads
+        window.onload = updateDateTime;
+    
+        // Optionally, update the time every minute
+        {% comment %} setInterval(updateDateTime, 60000); {% endcomment %}
+    </script>
+
     <script>
         let countdownInterval;
         let totalSeconds;
         let breakSeconds = 0;
         let breakStart = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            resumeCountdown();
+        
+            const isNewUser = {{ is_new_user|yesno:"true,false" }};
+            console.log('Is new user:', isNewUser);
+        
+            if (isNewUser) {
+                const checkinButton = document.getElementById('checkin-button');
+                const breakButtons = document.getElementById('break-buttons');
+                if (checkinButton) checkinButton.style.display = 'block';
+                if (breakButtons) breakButtons.style.display = 'none';
+            }
+        });
         
         function startCountdown() {
             countdownInterval = setInterval(function() {
@@ -88,8 +141,7 @@
                 document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
                 document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
         
-                localStorage.setItem('totalSeconds', totalSeconds);
-                localStorage.setItem('startTime', Date.now());
+                saveCountdownState();
             }, 1000);
         }
         
@@ -99,12 +151,10 @@
             document.getElementById('hours').textContent = '09';
             document.getElementById('minutes').textContent = '00';
             document.getElementById('seconds').textContent = '00';
-            localStorage.removeItem('totalSeconds');
-            localStorage.removeItem('startTime');
-            localStorage.removeItem('breakSeconds');
+            clearLocalStorage();
         }
         
-         function clearLocalStorage() {
+        function clearLocalStorage() {
             localStorage.removeItem('totalSeconds');
             localStorage.removeItem('startTime');
             localStorage.removeItem('breakSeconds');
@@ -113,41 +163,33 @@
             localStorage.removeItem('currentBreakType');
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded');
-            resumeCountdown();
-        
-            const isNewUser = {{ is_new_user|yesno:"true,false" }};
-            console.log('Is new user:', isNewUser);
-        
-            if (isNewUser) {
-                
-                document.getElementById('checkin-button').style.display = 'block';
-                document.getElementById('break-buttons').style.display = 'none';
-                
-            }
-        });
-        
         function handleCheckIn() {
             getLocationAndSubmit('checkin', 'attendance-form', function(success) {
                 if (success) {
                     totalSeconds = 9 * 60 * 60; // 9 hours in seconds
                     saveCountdownState();
                     startCountdown();
-                    
-                    document.getElementById('checkin-button').style.display = 'none';
-                    document.getElementById('break-buttons').style.display = 'flex';
-                    document.getElementById('break-hours').style.display = 'block';
-                    
+        
+                    const checkinButton = document.getElementById('checkin-button');
+                    const breakButtons = document.getElementById('break-buttons');
+                    const breakHours = document.getElementById('break-hours');
+                    if (checkinButton) checkinButton.style.display = 'none';
+                    if (breakButtons) breakButtons.style.display = 'flex';
+                    if (breakHours) breakHours.style.display = 'block';
                 }
             });
         }
-
+        
         function showCheckoutAndBreakButtons() {
-            document.getElementById('checkin-button').style.display = 'none';
-            document.getElementById('checkout-button').style.display = 'block';
-            document.getElementById('break-buttons').style.display = 'flex';
-            document.getElementById('break-hours').style.display = 'block';
+            const checkinButton = document.getElementById('checkin-button');
+            const checkoutButton = document.getElementById('checkout-button');
+            const breakButtons = document.getElementById('break-buttons');
+            const breakHours = document.getElementById('break-hours');
+        
+            if (checkinButton) checkinButton.style.display = 'none';
+            if (checkoutButton) checkoutButton.style.display = 'block';
+            if (breakButtons) breakButtons.style.display = 'flex';
+            if (breakHours) breakHours.style.display = 'block';
         }
         
         function getLocationAndSubmit(action, formId, callback) {
@@ -155,17 +197,17 @@
                 navigator.geolocation.getCurrentPosition(function(position) {
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
-                    
+        
                     document.querySelectorAll('input[name="latitude"]').forEach(function(input) {
                         input.value = latitude;
                     });
                     document.querySelectorAll('input[name="longitude"]').forEach(function(input) {
                         input.value = longitude;
                     });
-                    
+        
                     document.querySelector(`#${formId} input[name="action"]`).value = action;
                     document.getElementById(formId).submit();
-                    
+        
                     if (callback) {
                         callback(true);
                     }
@@ -175,28 +217,24 @@
                     } else {
                         alert('Error fetching location: ' + error.message);
                     }
-                    
+        
                     if (callback) {
                         callback(false);
                     }
                 });
             } else {
                 alert('Geolocation is not supported by this browser.');
-                
+        
                 if (callback) {
                     callback(false);
                 }
             }
         }
         
-
-        // document.addEventListener('DOMContentLoaded', resumeCountdown);
-
-
         function validateForgotCheckinForm() {
             var startTime = document.getElementById('start-time').value;
             var reason = document.getElementById('reason').value;
-    
+        
             if (!startTime || !reason) {
                 alert('Please fill out all required fields.');
                 return false;
@@ -207,7 +245,7 @@
         function submitForgotCheckin() {
             if (validateForgotCheckinForm()) {
                 getLocationAndSubmit('forgot_checkin', 'forgot-checkin-form');
-
+        
                 // Start the countdown after submitting forgot check-in
                 totalSeconds = 9 * 60 * 60; // 9 hours in seconds
                 saveCountdownState();
@@ -215,18 +253,16 @@
                 toggleButtons(true);
             }
         }
-
-
-
+        
         function confirmCheckout() {
             $('#checkoutModal').modal('show');
-
+        
             document.getElementById('confirm-checkout').addEventListener('click', function() {
                 getLocationAndSubmit('checkout', 'attendance-form', function(success) {
                     if (success) {
                         stopCountdown();
                         $('#checkoutModal').modal('hide');
-                        
+        
                         //document.getElementById('checkin-button').style.display = 'block';
                         //document.getElementById('break-buttons').style.display = 'none';
                         //document.getElementById('break-hours').style.display = 'none';
@@ -234,7 +270,7 @@
                 });
             }, { once: true });
         }
-    
+        
         function handleBreak(type) {
             const teaBreakButton = document.getElementById('tea-break-button');
             const lunchBreakButton = document.getElementById('lunch-break-button');
@@ -270,21 +306,29 @@
                 currentBreakType = type;
             }
         
+            saveBreakState();
+        }
+        
+        function saveBreakState() {
             localStorage.setItem('breakSeconds', breakSeconds);
             localStorage.setItem('breakStart', breakStart);
             localStorage.setItem('breakActive', breakActive);
             localStorage.setItem('currentBreakType', currentBreakType);
+        }
         
-            
+        function saveCountdownState() {
+            localStorage.setItem('totalSeconds', totalSeconds);
+            localStorage.setItem('startTime', Date.now());
+            saveBreakState();
         }
         
         function updateBreakTime() {
             let hours = Math.floor(breakSeconds / 3600);
             let minutes = Math.floor((breakSeconds % 3600) / 60);
             let seconds = breakSeconds % 60;
-            document.getElementById('break-time').textContent = 
-                String(hours).padStart(2, '0') + ':' + 
-                String(minutes).padStart(2, '0') + ':' + 
+            document.getElementById('break-time').textContent =
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
                 String(seconds).padStart(2, '0');
         }
         
@@ -303,9 +347,6 @@
                 if (totalSeconds > 0) {
                     startCountdown();
                     showCheckoutAndBreakButtons();
-                    //document.getElementById('checkin-button').style.display = 'none';
-                    //document.getElementById('break-buttons').style.display = 'flex';
-                    //document.getElementById('break-hours').style.display = 'block';
                 } else {
                     stopCountdown();
                 }
@@ -317,25 +358,17 @@
         
             if (breakActive) {
                 if (currentBreakType === 'tea') {
-                    teaBreakButton.innerHTML = '<ion-icon name="cafe-outline" class="align-left"></ion-icon><span class="bold">End Tea Break</span>';
-                    lunchBreakButton.disabled = true;
+                    if (teaBreakButton) teaBreakButton.innerHTML = '<ion-icon name="cafe-outline" class="align-left"></ion-icon><span class="bold">End Tea Break</span>';
+                    if (lunchBreakButton) lunchBreakButton.disabled = true;
                 } else if (currentBreakType === 'lunch') {
-                    lunchBreakButton.innerHTML = '<ion-icon name="restaurant-outline" class="align-left"></ion-icon><span class="bold">End Lunch Break</span>';
-                    teaBreakButton.disabled = true;
+                    if (lunchBreakButton) lunchBreakButton.innerHTML = '<ion-icon name="restaurant-outline" class="align-left"></ion-icon><span class="bold">End Lunch Break</span>';
+                    if (teaBreakButton) teaBreakButton.disabled = true;
                 }
-                checkoutButton.disabled = true;
+                if (checkoutButton) checkoutButton.disabled = true;
             }
             updateBreakTime();
         }
         
-        function saveCountdownState() {
-            localStorage.setItem('totalSeconds', totalSeconds);
-            localStorage.setItem('startTime', Date.now());
-            localStorage.setItem('breakSeconds', breakSeconds);
-            localStorage.setItem('breakStart', breakStart);
-            localStorage.setItem('breakActive', breakActive);
-            localStorage.setItem('currentBreakType', currentBreakType);
-        }
     </script>
 
     {% endblock %}

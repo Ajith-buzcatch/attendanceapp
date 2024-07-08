@@ -100,7 +100,7 @@
     {% block leaveformjs %}
 
     {% endblock %}
-   
+    
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     
@@ -115,43 +115,7 @@
     
 
     
-    <script>
-        function updateDateTime() {
-            const dateElement = document.getElementById('current-date');
-            const timeElement = document.getElementById('current-time');
-            const hiddenDateElement = document.getElementById('hidden-date');
-            const hiddenDateElementForgot = document.getElementById('forgot-hidden-date');
-    
-            const now = new Date();
-    
-            // Format date as 'DD MMM YYYY'
-            const options = { year: 'numeric', month: 'short', day: '2-digit' };
-            const currentDate = now.toLocaleDateString('en-US', options);
-    
-            // Format time as 'HH:MM AM/PM'
-            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-            const currentTime = now.toLocaleTimeString('en-US', timeOptions);
-    
-            // Combine date and time for hidden input
-            const dateTimeOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            const currentDateTime = now.toLocaleString('en-US', dateTimeOptions);
 
-            // Combine date and time for hidden input
-            const forgotdateTimeOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            const forgotcurrentDateTime = now.toLocaleString('en-US', forgotdateTimeOptions);
-    
-            dateElement.textContent = currentDate;
-            timeElement.textContent = currentTime;
-            hiddenDateElement.value = currentDateTime;
-            hiddenDateElementForgot.value = forgotcurrentDateTime;
-        }
-    
-        // Update the date and time when the page loads
-        window.onload = updateDateTime;
-    
-        // Optionally, update the time every minute
-        {% comment %} setInterval(updateDateTime, 60000); {% endcomment %}
-    </script>
 
     
     
