@@ -484,3 +484,15 @@ p {
     display: none !important;
   }
   
+
+  .seen{
+    position: absolute;
+    will-change: transform;
+    transform: translate3d(0px, 184px, 0px) !important;
+    width: calc(100% - 37px) !important;
+    margin-left: 19px !important;
+    top: 20px !important;
+    left: 0px;
+    z-index: 1000 !important;
+
+}
