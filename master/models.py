@@ -57,7 +57,7 @@ class EmployeeMaster(models.Model):
     address = models.TextField(blank=True, null=True)
     city = models.ForeignKey(CityMaster,on_delete=models.CASCADE, blank=True, null=True)
     company = models.ForeignKey(CompanyDetails,on_delete=models.CASCADE, blank=True, null=True)
-    
+     
     class Meta:
       db_table  = 'employeemaster'
    
@@ -85,7 +85,7 @@ class EmployeeImage(models.Model):
       db_table  = 'employeeimage'
       
 class AttendanceMaster(models.Model):
-    Slno = models.IntegerField(max_length=50, null=True, blank=True)
+    Slno = models.IntegerField(null=True, blank=True)
     employee = models.ForeignKey(EmployeeMaster, on_delete=models.CASCADE, blank=True, null=True)
     company = models.ForeignKey(CompanyDetails,on_delete=models.CASCADE, blank=True, null=True)
     login_datetime = models.DateTimeField(blank=True, null=True)
@@ -186,3 +186,59 @@ class AddLeave(models.Model):
   available_leave_balance = models.FloatField(null=True,blank=True)
   class Meta:
     db_table = 'addleave'
+    
+class EmployeeProfile(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+    
+    MARITAL_STATUS_CHOICES = [
+        ('S', 'Single'),
+        ('M', 'Married'),
+        ('D', 'Divorced'),
+        ('W', 'Widowed'),
+    ]
+    
+    BLOOD_GROUP_CHOICES = [
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+    ]
+
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, null=True, blank=True)
+    employee = models.ForeignKey(EmployeeMaster, on_delete=models.CASCADE, null=True, blank=True)
+    personal_mail = models.EmailField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
+    marital_status = models.CharField(max_length=1, choices=MARITAL_STATUS_CHOICES,null=True, blank=True)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, null=True, blank=True)
+    nationality = models.CharField(max_length=100,null=True, blank=True)
+    identification_no = models.CharField(max_length=100, null=True, blank=True)
+    field_of_study = models.CharField(max_length=100, null=True, blank=True)
+    school = models.CharField(max_length=100, null=True, blank=True)
+    emergency_contact_person = models.CharField(max_length=100, null=True, blank=True)
+    emergency_phone = models.CharField(max_length=15, null=True, blank=True)
+    
+    class Meta:
+      db_table = 'employeeprofile'
+      
+      
+class BankDetails(models.Model):
+    employee = models.ForeignKey(EmployeeMaster, on_delete=models.CASCADE, null=True, blank=True)
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, null=True, blank=True)
+    bank_name = models.CharField(max_length=100)
+    account_number = models.CharField(max_length=20)
+    branch_address = models.CharField(max_length=255)
+    
+    class Meta:
+      db_table = 'bankdetails'
+
+    def __str__(self):
+        return f"{self.employee.user.username}'s Bank Details"

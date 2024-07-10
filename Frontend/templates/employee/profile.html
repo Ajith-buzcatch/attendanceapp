@@ -3,6 +3,26 @@
 {% block profilecss %}
 
     <style>
+        .con {
+            position: relative;
+            bottom: 160px;
+        }
+
+        @media(max-width:768px) {
+            .profile-work {
+                display: none;
+            }
+
+            .con {
+                bottom: -14px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1350px) {
+            .con {
+                bottom: 90px;
+            }
+        }
         .emp-profile {
             padding: 3%;
             margin-bottom: 11%;
@@ -120,7 +140,14 @@
 
     {% block content %}
     <div class="middle">
-
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show mt-6 ms-5 me-5" role="alert">
+                    <strong {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
         <div class="container emp-profile">
             <form method="post">
                 <div class="row">
@@ -160,7 +187,8 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <input type="button" class="profile-edit-btn" name="btnAddMore" value="Edit Profile" />
+                        <input type="button" class="profile-edit-btn" name="btnAddMore" value="Edit Profile" onclick="window.location.href = '{% url "employee_edit_profile" %}'" >
+                        {% comment %} <a href="{% url "employee_edit_profile" %}" type="button" class="profile-edit-btn" name="btnAddMore" />Edit Profile</a> {% endcomment %}
                     </div>
                 </div>
                 <div class="row">
@@ -179,7 +207,7 @@
                         </div>
                     </div>
                     <div class="col-md-8">
-                        <div class="tab-content profile-tab" id="myTabContent">
+                        <div class="tab-content profile-tab con" id="myTabContent">
                             <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -222,7 +250,7 @@
                                          <p>{{ emp_designation.designation.designation }}</p>
                                         {% endfor %}
                                     </div>
-                                </div><br>
+                                </div>
                                 <div class="row">
                                     <div class="col-md-12">
                                         <p> <a href="{% url 'employee_personal_info' %}">Your detail personal information</a></p>

@@ -55,15 +55,15 @@
                     </div>
                     <div id="break-buttons" class="break-buttons" style="display: none;">
                         <button id="tea-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('tea')">
-                            <ion-icon name="cafe-outline" class="align-left"></ion-icon>
+                            {% comment %} <ion-icon name="cafe-outline" class="align-left"></ion-icon> {% endcomment %}
                             <span class="bold">Tea Break</span>
                         </button>
                         <button id="lunch-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('lunch')">
-                            <ion-icon name="restaurant-outline" class="align-left"></ion-icon>
+                            {% comment %} <ion-icon name="restaurant-outline" class="align-left"></ion-icon> {% endcomment %}
                             <span class="bold">Lunch Break</span>
                         </button>
                         <button id="checkout-button" class="data-top-right right-btn checkout-color align-center" type="button" onclick="confirmCheckout()">
-                            <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                            {% comment %} <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon> {% endcomment %}
                             <span class="bold">Check Out</span>
                         </button>
                     </div>
@@ -71,15 +71,15 @@
                 
                     <div id="break-buttons" class="break-buttons">
                         <button id="tea-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('tea')">
-                            <ion-icon name="cafe-outline" class="align-left"></ion-icon>
+                            {% comment %} <ion-icon name="cafe-outline" class="align-left"></ion-icon> {% endcomment %}
                             <span class="bold">Tea Break</span>
                         </button>
                         <button id="lunch-break-button" class="data-top-right right-btn align-center" type="button" onclick="handleBreak('lunch')">
-                            <ion-icon name="restaurant-outline" class="align-left"></ion-icon>
+                            {% comment %} <ion-icon name="restaurant-outline" class="align-left"></ion-icon> {% endcomment %}
                             <span class="bold">Lunch Break</span>
                         </button>
                         <button id="checkout-button" class="data-top-right checkout-color right-btn align-center" type="button" onclick="confirmCheckout()">
-                            <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon>
+                            {% comment %} <ion-icon name="arrow-forward-outline" class="align-left"></ion-icon> {% endcomment %}
                             <span class="bold">Check Out</span>
                         </button>
                         
@@ -139,16 +139,19 @@
                         <textarea class="form-control" name="reason" id="reason" required></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         {% if latest_attendance %}
                             {% if latest_attendance.is_pending_approval == 1 %}
-                                <button type="submit" class="btn btn-primary" disabled>Submit</button> <br>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" disabled>Submit</button>
+                                <br>
                                 <p class="modal-title danger" style="color: red;">Request Already Exists in Pending</p>
                             {% else %}
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             {% endif %}
                         {% else %}
-                            
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
                         {% endif %}
                     </div>
                 </form>

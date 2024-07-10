@@ -20,53 +20,61 @@
                     </tr>
                     <tr>
                         <td class="left">Email</td>
-                        <td class="right">{{ employee_info.user.email }}</td>
+                        <td class="right">{{ employee_profile.personal_mail }}</td>
                     </tr>
-                    {% comment %} <tr>
+                    <tr>
                         <td class="left">Date of Birth</td>
-                        <td class="right">19/02/2001</td>
+                        <td class="right">{{ employee_profile.date_of_birth }}</td>
                     </tr>
                     <tr>
                         <td class="left">Gender</td>
-                        <td class="right">Male</td>
+                        <td class="right">
+                            {% if employee_profile.gender == 'M' %} Male
+                            {% elif employee_profile.gender == 'F' %} Female
+                            {% elif employee_profile.gender == 'O' %} Others
+                            {% endif %} 
+                        </td>
                     </tr>
                     <tr>
                         <td class="left">Marital Status</td>
-                        <td class="right">Married</td>
+                        <td class="right">
+                            {% if employee_profile.marital_status == 'S' %} Single
+                            {% elif employee_profile.marital_status == 'M' %} Married
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td class="left">Blood Group</td>
-                        <td class="right">A+</td>
+                        <td class="right">{{ employee_profile.blood_group }}</td>
                     </tr>
                     <tr>
                         <td class="left">Nationality</td>
-                        <td class="right">India</td>
-                    </tr> {% endcomment %}
+                        <td class="right">{{ employee_profile.nationality }}</td>
+                    </tr> 
                     <tr>
                         <td class="left">Address</td>
                         <td class="right">{{ employee_info.address }}</td>
                     </tr>
-                    {% comment %} <tr>
+                    <tr>
                         <td class="left">Identification No</td>
-                        <td class="right">142342353252</td>
+                        <td class="right">{{ employee_profile.identification_no }}</td>
                     </tr>
                     <tr>
                         <td class="left">Field of study</td>
-                        <td class="right">MCA</td>
+                        <td class="right">{{ employee_profile.field_of_study }}</td>
                     </tr>
                     <tr>
                         <td class="left">School</td>
-                        <td class="right">ahfgfajhfoa hdfoahdfjh</td>
+                        <td class="right">{{ employee_profile.school }}</td>
                     </tr>
                     <tr>
                         <td class="left">Emergency Contact</td>
-                        <td class="right">iafabef</td>
+                        <td class="right">{{ employee_profile.emergency_contact_person }}</td>
                     </tr>
                     <tr>
                         <td class="left">Emergency Phone</td>
-                        <td class="right">142342353252</td>
-                    </tr> {% endcomment %}
-
+                        <td class="right">{{ employee_profile.emergency_phone }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

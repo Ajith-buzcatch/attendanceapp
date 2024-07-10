@@ -1,0 +1,103 @@
+{% extends "employee/employeebase.html" %}
+
+
+    {% block content %}
+    
+    <div class="middle">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        {% for message in messages %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>{{ message }}</strong> 
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                        <div class="card-body">
+                            {% comment %} <h2>Edit Profile</h2> {% endcomment %}
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="personal_mail">Personal Email:</label>
+                                                <input type="email" class="form-control" id="personal_mail" name="personal_mail" value="{{ profile.personal_mail }}" placeholder="Personal Email" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="date_of_birth">Date of Birth:</label>
+                                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" value="{{ profile.date_of_birth|date:'Y-m-d' }}" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="gender">Gender:</label>
+                                                <select name="gender" class="form-control" required>
+                                                    <option value="">Select Gender</option>
+                                                    <option value="M" {% if profile.gender == 'M' %}selected{% endif %}>Male</option>
+                                                    <option value="F" {% if profile.gender == 'F' %}selected{% endif %}>Female</option>
+                                                    <option value="O" {% if profile.gender == 'O' %}selected{% endif %}>Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="marital_status">Marital Status:</label>
+                                                <select name="marital_status" class="form-control" required>
+                                                    <option value="">Select Marital Status</option>
+                                                    <option value="S" {% if profile.marital_status == 'S' %}selected{% endif %}>Single</option>
+                                                    <option value="M" {% if profile.marital_status == 'M' %}selected{% endif %}>Married</option>
+                                                    <option value="D" {% if profile.marital_status == 'D' %}selected{% endif %}>Divorced</option>
+                                                    <option value="W" {% if profile.marital_status == 'W' %}selected{% endif %}>Widowed</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="blood_group">Blood Group:</label>
+                                                <select name="blood_group" class="form-control" required>
+                                                    <option value="">Select Blood Group</option>
+                                                    <option value="A+" {% if profile.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                                                    <option value="A-" {% if profile.blood_group == 'A-' %}selected{% endif %}>A-</option>
+                                                    <option value="B+" {% if profile.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                                                    <option value="B-" {% if profile.blood_group == 'B-' %}selected{% endif %}>B-</option>
+                                                    <option value="AB+" {% if profile.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                                                    <option value="AB-" {% if profile.blood_group == 'AB-' %}selected{% endif %}>AB-</option>
+                                                    <option value="O+" {% if profile.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                                                    <option value="O-" {% if profile.blood_group == 'O-' %}selected{% endif %}>O-</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="nationality">Nationality:</label>
+                                                <input type="text" class="form-control" id="nationality" name="nationality" value="{{ profile.nationality }}" placeholder="Nationality" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="identification_no">Identification No:</label>
+                                                <input type="text" class="form-control" id="identification_no" name="identification_no" value="{{ profile.identification_no }}" placeholder="Identification No" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="field_of_study">Field of Study:</label>
+                                                <input type="text" class="form-control" id="field_of_study" name="field_of_study" value="{{ profile.field_of_study }}" placeholder="Field of Study" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="school">School:</label>
+                                                <input type="text" class="form-control" id="school" name="school" value="{{ profile.school }}" placeholder="School" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="emergency_contact_person">Emergency Contact Person:</label>
+                                                <input type="text" class="form-control" id="emergency_contact_person" name="emergency_contact_person" value="{{ profile.emergency_contact_person }}" placeholder="Emergency Contact Person Name" required>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="emergency_phone">Emergency Phone:</label>
+                                                <input type="text" class="form-control" id="emergency_phone" name="emergency_phone" value="{{ profile.emergency_phone }}" placeholder="Emergency Phone" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>                 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+    </div>
+    {% endblock  %}

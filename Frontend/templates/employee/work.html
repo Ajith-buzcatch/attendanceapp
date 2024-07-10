@@ -61,14 +61,14 @@
                             <td class="left">Work Location</td>
                             <td class="right">{{ employee.location.city }}</td>
                         </tr>
-                        <tr>
+                        {% comment %} <tr>
                             <td class="left">Manager</td>
                             <td class="right">sdgfdhfsf</td>
                         </tr>
                         <tr>
                             <td class="left">Employee Contract</td>
                             <td class="right">142342353252</td>
-                        </tr>
+                        </tr> {% endcomment %}
                         
 
                     </tbody>
@@ -81,34 +81,66 @@
 
 
         <div class="landing-center">
-            <div class="work-name bold blues">
-                <h5>Bank Details</h5>
+            <div class="work-name bold blues" style="display:flex">
+                <h5>Bank Details</h5> &nbsp; &nbsp;
+                <ion-icon style="font-size: 25px;" name="add-circle-outline" data-toggle="modal" data-target="#bankDetailsModal"></ion-icon>
+                {% comment %} <span class="mtop" >Add Bank Details</span> {% endcomment %}
+                
             </div>
-
+            
             <div class="row">
                 <table class="table">
                     <tbody>
                         <tr>
                             <td class="left">Bank Name</td>
-                            <td class="right">Some Name</td>
+                            <td class="right">{{ bank_details.bank_name }}</td>
                         </tr>
                         <tr>
                             <td class="left">Account Number</td>
-                            <td class="right">987dfdsf6543212</td>
+                            <td class="right">{{ bank_details.account_number }}</td>
                         </tr>
                         <tr>
                             <td class="left">Branch Address</td>
-                            <td class="right">dsfjasdfadf</td>
+                            <td class="right">{{ bank_details.branch_address }}</td>
                         </tr>
-                       
-                        
-
                     </tbody>
                 </table>
             </div>
-
-
-
+            
+        </div>
+         <!-- Modal -->
+        <div class="modal fade" id="bankDetailsModal" tabindex="-1" role="dialog" aria-labelledby="bankDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="bankDetailsForm" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="bankDetailsModalLabel">Enter Bank Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="bank_name">Bank Name</label>
+                                <input type="text" class="form-control" id="bank_name" name="bank_name" value="{{ bank_details.bank_name }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="account_number">Account Number</label>
+                                <input type="text" class="form-control" id="account_number" name="account_number" value="{{ bank_details.account_number }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="branch_address">Branch Address</label>
+                                <input type="text" class="form-control" id="branch_address" name="branch_address" value="{{ bank_details.branch_address }}" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock  %}

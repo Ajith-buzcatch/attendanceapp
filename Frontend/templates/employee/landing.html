@@ -282,9 +282,9 @@
                 updateBreakTime();
         
                 if (type === 'tea') {
-                    teaBreakButton.innerHTML = '<ion-icon name="cafe-outline" class="align-left"></ion-icon><span class="bold">Tea Break</span>';
+                    teaBreakButton.innerHTML = '<span class="bold">Tea Break</span>';
                 } else if (type === 'lunch') {
-                    lunchBreakButton.innerHTML = '<ion-icon name="restaurant-outline" class="align-left"></ion-icon><span class="bold">Lunch Break</span>';
+                    lunchBreakButton.innerHTML = '<span class="bold">Lunch Break</span>';
                 }
         
                 teaBreakButton.disabled = false;
@@ -295,10 +295,10 @@
             } else {
                 breakStart = Date.now();
                 if (type === 'tea') {
-                    teaBreakButton.innerHTML = '<ion-icon name="cafe-outline" class="align-left"></ion-icon><span class="bold">End Tea Break</span>';
+                    teaBreakButton.innerHTML = '<span class="bold">End Tea Break</span>';
                     lunchBreakButton.disabled = true;
                 } else if (type === 'lunch') {
-                    lunchBreakButton.innerHTML = '<ion-icon name="restaurant-outline" class="align-left"></ion-icon><span class="bold">End Lunch Break</span>';
+                    lunchBreakButton.innerHTML = '<span class="bold">End Break</span>';
                     teaBreakButton.disabled = true;
                 }
                 checkoutButton.disabled = true;
@@ -358,10 +358,10 @@
         
             if (breakActive) {
                 if (currentBreakType === 'tea') {
-                    if (teaBreakButton) teaBreakButton.innerHTML = '<ion-icon name="cafe-outline" class="align-left"></ion-icon><span class="bold">End Tea Break</span>';
+                    if (teaBreakButton) teaBreakButton.innerHTML = '<span class="bold">End Tea Break</span>';
                     if (lunchBreakButton) lunchBreakButton.disabled = true;
                 } else if (currentBreakType === 'lunch') {
-                    if (lunchBreakButton) lunchBreakButton.innerHTML = '<ion-icon name="restaurant-outline" class="align-left"></ion-icon><span class="bold">End Lunch Break</span>';
+                    if (lunchBreakButton) lunchBreakButton.innerHTML = '<span class="bold">End Break</span>';
                     if (teaBreakButton) teaBreakButton.disabled = true;
                 }
                 if (checkoutButton) checkoutButton.disabled = true;

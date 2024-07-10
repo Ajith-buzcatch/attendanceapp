@@ -31,7 +31,8 @@ from django.utils.dateparse import parse_date, parse_datetime
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-
+from django.db.models import Prefetch
+import pytz
 
 # def login_redirect(request):
 #     if request.user.is_authenticated:
@@ -349,7 +350,7 @@ def WorkTime(request):
     return render(request, 'company_admin/work-time.html', context)
 
 @login_required
-def AttendanceOverview(request):
+def attendance_overview(request):
     # Assuming you have a way to identify the logged-in user (company admin)
     logged_in_user = request.user
     
@@ -358,8 +359,10 @@ def AttendanceOverview(request):
     
     # Fetch attendance records for employees belonging to the company
     attendance_records = AttendanceMaster.objects.filter(company=company).order_by('-login_datetime')
-
+    print ('attendance_records')
     for record in attendance_records:
+        print(f'Employee: {record.employee.employee_name}, Login: {record.login_datetime}, Logout: {record.logout_datetime}')
+        
         # Calculate working hours if both check-in and check-out times are available
         if record.login_datetime and record.logout_datetime:
             working_hours = record.logout_datetime - record.login_datetime
@@ -926,9 +929,9 @@ def admin_forgot_checkin_list(request):
 from django.db.models import Q
 
 @login_required(login_url='employee_login')
-def LeaveForm(request):
+def leave_form(request):
     employee = EmployeeMaster.objects.get(user=request.user)
-    leave_requests = LeaveEnquiry.objects.filter(employee=employee, status=0).order_by('enquery_date')
+    leave_requests = LeaveEnquiry.objects.filter(employee=employee, status=0).order_by('-enquery_date')
     
     if request.method == "POST":
         if 'delete_request' in request.POST:
@@ -1009,6 +1012,8 @@ def LeaveForm(request):
             messages.error(request, "Insufficient leave balance.")
             return redirect('leave_form')
 
+    
+
         # Create the leave enquiry
         LeaveEnquiry.objects.create(
             company=company,
@@ -1016,7 +1021,7 @@ def LeaveForm(request):
             leave=leave_type,
             from_date=from_date,
             end_date=end_date,
-            enquery_date=datetime.now(),
+            enquery_date= timezone.now(),
             status=0,
             reason=reason,
             half_day_option=half_day_option
@@ -1034,7 +1039,7 @@ def LeaveForm(request):
     return render(request, 'employee/leave_form.html', {'leave_name': leave_name, 'leave_requests': leave_requests})
 
 @login_required(login_url='employee_login')
-def EmployeeProfile(request):
+def employeeProfile(request):
     if request.user.is_authenticated:
         try:
             employee = EmployeeMaster.objects.select_related('user').prefetch_related('employeedesignation_set__designation').get(user=request.user)
@@ -1057,11 +1062,12 @@ def EmployeeProfile(request):
     return render(request, 'employee/profile.html', {'employee': None})
 
 @login_required(login_url='employee_login')
-def EmployeePersonalInfo(request):
+def employee_personal_info(request):
     if request.user.is_authenticated:
         try:
             employee = EmployeeMaster.objects.select_related('user').prefetch_related('employeedesignation_set__designation').get(user=request.user)
             employee_image = EmployeeImage.objects.filter(employee=employee).first()
+            employee_profile = EmployeeProfile.objects.get(employee=employee)
             
             # Pass employee data along with the context
             context = {
@@ -1072,7 +1078,8 @@ def EmployeePersonalInfo(request):
                     'image_url': employee_image.employee_image.url if employee_image else None
                 },
                 
-                'employee_info':employee
+                'employee_info':employee,
+                'employee_profile': employee_profile
             }
             return render(request, 'employee/personalinfo.html', context)
         except EmployeeMaster.DoesNotExist:
@@ -1080,19 +1087,43 @@ def EmployeePersonalInfo(request):
     return render(request, 'employee/personalinfo.html', {'employee': None})
 
 @login_required(login_url='employee_login')
-def EmployeeWorkDetail(request):
+def employee_work_detail(request):
     if request.user.is_authenticated:
         try:
+            employee = EmployeeMaster.objects.get(user=request.user)
+            company = get_object_or_404(CompanyDetails, id=employee.company_id)
+        except:
+            pass
+        
+        bank_details = BankDetails.objects.filter(employee=employee).first() or {}
+        
+        
+        if request.method == 'POST':
+            bank_name = request.POST.get('bank_name')
+            account_number = request.POST.get('account_number')
+            branch_address = request.POST.get('branch_address')
+
+            BankDetails.objects.update_or_create(
+                employee__user_id  = request.user,
+                defaults = {
+                    'employee' : employee,
+                    'company' : company,
+                    'bank_name' : bank_name,
+                    'account_number' : account_number,
+                    'branch_address' :branch_address
+                }
+            )
+                    
+            return redirect('employee_work_detail')
+            
+        try:
             employee = EmployeeMaster.objects.select_related('user', 'city', 'company').prefetch_related(
-                'employeedesignation_set__designation',
-                'employeedepartment_set__department',
-                'employeejoinmaster_set__role'
+                Prefetch('employeedesignation_set', queryset=EmployeeDesignation.objects.select_related('designation')),
+                Prefetch('employeedepartment_set', queryset=EmployeeDepartment.objects.select_related('department')),
+                Prefetch('employeejoinmaster_set', queryset=EmployeeJoinMaster.objects.select_related('role'))
             ).get(user=request.user)
 
             employee_image = EmployeeImage.objects.filter(employee=employee).first()
-
-            # Get the latest designation, department, and join date
-            
             latest_department = employee.employeedepartment_set.order_by('-id').first()
             latest_join = employee.employeejoinmaster_set.order_by('-id').first()
 
@@ -1107,13 +1138,16 @@ def EmployeeWorkDetail(request):
                     'email': employee.user.email,
                     'location': employee.city,
                     'image_url': employee_image.employee_image.url if employee_image else None,
+                    'bank_details': bank_details
                 },
-                'employee_info': employee
+                'employee_info': employee,
+                'bank_details': bank_details
             }
             return render(request, 'employee/work.html', context)
         except EmployeeMaster.DoesNotExist:
-            pass
-    return render(request, 'employee/work.html', {'employee': None})
+            return render(request, 'employee/work.html', {'employee': None})
+
+    return render(request, 'employee/work.html', {'employee': None, 'bank_details': bank_details})
 
 
 def Register(request):
@@ -1413,3 +1447,57 @@ def DownloadReport(request):
 
             return response
     return HttpResponse("Invalid request")
+
+@login_required
+def employee_edit_profile(request):
+    try:
+        employee_master = EmployeeMaster.objects.get(user=request.user)
+        company =  get_object_or_404(CompanyDetails, id=employee_master.company_id)
+    except EmployeeMaster.DoesNotExist:
+        # Handle case where EmployeeMaster record does not exist
+        return redirect('employee_profile')
+    # try:
+    profile = EmployeeProfile.objects.filter(employee=employee_master).first() or {}
+    # if profile:
+    #     pass
+    # profile = profile.first() if profile.exists() else {}
+    # except EmployeeProfile.DoesNotExist:
+    #     profile = {}
+    
+    if request.method == 'POST':
+        # Extract data from the form
+        personal_mail = request.POST.get('personal_mail')
+        date_of_birth = request.POST.get('date_of_birth')
+        gender = request.POST.get('gender')
+        marital_status = request.POST.get('marital_status')
+        blood_group = request.POST.get('blood_group')
+        nationality = request.POST.get('nationality')
+        identification_no = request.POST.get('identification_no')
+        field_of_study = request.POST.get('field_of_study')
+        school = request.POST.get('school')
+        emergency_contact_person = request.POST.get('emergency_contact_person')
+        emergency_phone = request.POST.get('emergency_phone')
+            
+        EmployeeProfile.objects.update_or_create(
+            employee__user_id = request.user.id,
+            defaults = {
+            'employee':employee_master,
+            'company':company,
+            'personal_mail':personal_mail,
+            'date_of_birth':date_of_birth,
+            'gender':gender,
+            'marital_status':marital_status,
+            'blood_group':blood_group,
+            'nationality':nationality,
+            'identification_no': identification_no,
+            'field_of_study': field_of_study,
+            'school':school,
+            'emergency_contact_person':emergency_contact_person,
+            'emergency_phone': emergency_phone
+            }
+        )
+        
+        return redirect('employee_profile')  # Redirect to wherever you list your profiles
+    
+    # Render the form with existing data if editing
+    return render(request, 'employee/editprofile.html', {'profile': profile})
