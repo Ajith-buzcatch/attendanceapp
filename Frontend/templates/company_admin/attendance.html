@@ -1,5 +1,7 @@
 {% extends "company_admin/adminbase.html" %}
 {% load custom_tags %}
+{% block attendance.css %}
+{% endblock %}
 {% block content %}
     <div class="container-fluid content-inner mt-6 py-0">
         <div>
@@ -51,43 +53,8 @@
     </div>
     {% endblock %}
     {% block attendance.html %}
+
     
-    <script>
-        // Get the table element by its ID
-     const table = document.getElementById('datatable');
-     
-     // Get all rows from the table body
-     const rows = Array.from(table.getElementsByTagName('tbody')[0].getElementsByTagName('tr'));
-     
-     // Sort rows based on check-in date and time
-     rows.sort((rowA, rowB) => {
-         const dateA = getDateFromString(rowA.cells[3].textContent); // Assuming check-in date and time is in the 4th cell (index 3)
-         const dateB = getDateFromString(rowB.cells[3].textContent);
-     
-         // Sort in descending order (latest first)
-         return dateB - dateA;
-     });
-     
-     // Reinsert sorted rows into the table
-     const tbody = table.getElementsByTagName('tbody')[0];
-     rows.forEach(row => tbody.appendChild(row));
-     
-     // Function to parse date and time from string
-     function getDateFromString(dateTimeString) {
-         // Extract date and time from string
-         const parts = dateTimeString.split('.');
-         const dateString = parts[0].trim(); // Extract date part
-         const timeString = parts[1].trim(); // Extract time part
-     
-         // Convert date and time string to Date object
-         const dateTime = new Date(dateString + ' ' + timeString);
-     
-         // Return timestamp for comparison
-         return dateTime.getTime();
-     }
-     
-     
-    </script>
 
     {% endblock %}
 

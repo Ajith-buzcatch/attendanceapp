@@ -225,7 +225,14 @@ class EmployeeProfile(models.Model):
     school = models.CharField(max_length=100, null=True, blank=True)
     emergency_contact_person = models.CharField(max_length=100, null=True, blank=True)
     emergency_phone = models.CharField(max_length=15, null=True, blank=True)
-    
+    linkedin = models.CharField(max_length=255, null=True, blank=True)
+    twitter = models.CharField(max_length=255, null=True, blank=True)
+    instagram = models.CharField(max_length=255, null=True, blank=True)
+    skill_1 = models.CharField(max_length=255, null=True, blank=True)
+    skill_2 = models.CharField(max_length=255, null=True, blank=True)
+    skill_3 = models.CharField(max_length=255, null=True, blank=True)
+    skill_4 = models.CharField(max_length=255, null=True, blank=True)
+    skill_5 = models.CharField(max_length=255, null=True, blank=True)
     class Meta:
       db_table = 'employeeprofile'
       

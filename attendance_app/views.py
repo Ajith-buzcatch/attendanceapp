@@ -195,7 +195,7 @@ def UserAdd(request):
     
 
 @login_required
-def UserEdit(request, user_id):
+def user_edit(request, user_id):
     user = get_object_or_404(User, id=user_id)
     employee = get_object_or_404(EmployeeMaster, user=user)
 
@@ -238,9 +238,11 @@ def UserEdit(request, user_id):
     departments = DepartmentMaster.objects.all()
     designations = DesignationMaster.objects.all()
     roles = RoleMaster.objects.all()
-
+    employee_image = EmployeeImage.objects.filter(employee=employee).first()
+    
     context = {
         'user': user,
+        'employee_image': employee_image,
         'employee': employee,
         'usertypes': usertypes,
         'nations': nations,
@@ -253,7 +255,7 @@ def UserEdit(request, user_id):
     return render(request, 'company_admin/user-edit.html', context)
 
 @login_required
-def UserView(request, user_id):
+def user_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
     employee = get_object_or_404(EmployeeMaster, user=user)
     employee_department = EmployeeDepartment.objects.filter(employee=employee).first()
@@ -261,6 +263,7 @@ def UserView(request, user_id):
     employee_image = EmployeeImage.objects.filter(employee=employee).first()
     employee_join = EmployeeJoinMaster.objects.filter(employee=employee).first()
     work_time = WorkingTime.objects.filter(user=user).first()
+    personal_info = EmployeeProfile.objects.filter(employee=employee).first()
     context = {
         'user': user,
         'employee': employee,
@@ -268,12 +271,13 @@ def UserView(request, user_id):
         'employee_designation': employee_designation,
         'employee_image': employee_image,
         'employee_join': employee_join,
-        'work_time': work_time
+        'work_time': work_time,
+        'personal_info': personal_info
     }
     return render(request, 'company_admin/user-view.html', context)
     
 @login_required
-def UserList(request):
+def user_list(request):
     try:
         # Get the company associated with the logged-in admin
         admin_company = CompanyDetails.objects.get(user=request.user)
@@ -604,14 +608,14 @@ def checkin_employee(employee, company, current_datetime, location_name):
     AttendanceMaster.objects.create(
         employee=employee,
         company=company,
-        login_datetime=current_datetime,
+        login_datetime=timezone.now(),
         login_ipaddress=location_name
     )
 
 def checkout_employee(employee, current_datetime, location_name):
     latest_attendance = AttendanceMaster.objects.filter(employee=employee).order_by('-login_datetime').first()
     if latest_attendance and not latest_attendance.logout_datetime:
-        latest_attendance.logout_datetime = current_datetime
+        latest_attendance.logout_datetime = timezone.now()
         latest_attendance.logout_ipaddress = location_name
         latest_attendance.save()
 
@@ -656,7 +660,7 @@ def calculate_working_hours(latest_attendance):
     return formatted_checkin_time, formatted_checkout_time, total_working_hours
 
 def calculate_attendance_statistics(employee):
-    today = now().date()
+    today = timezone.now()
     start_of_month = today.replace(day=1)
     start_of_week = today - timedelta(days=today.weekday())
     
@@ -1039,12 +1043,26 @@ def leave_form(request):
     return render(request, 'employee/leave_form.html', {'leave_name': leave_name, 'leave_requests': leave_requests})
 
 @login_required(login_url='employee_login')
-def employeeProfile(request):
+def employee_profile(request):
     if request.user.is_authenticated:
         try:
             employee = EmployeeMaster.objects.select_related('user').prefetch_related('employeedesignation_set__designation').get(user=request.user)
             employee_image = EmployeeImage.objects.filter(employee=employee).first()
             
+            if request.method == 'POST' and request.FILES.get('profile_image'):
+                image_file = request.FILES['profile_image']
+                # Update or create the EmployeeImage
+                if employee_image:
+                    employee_image.employee_image = image_file
+                    employee_image.save()
+                else:
+                    EmployeeImage.objects.create(employee=employee, employee_image=image_file)
+                return redirect('employee_profile')
+            
+            try:
+                employee_profile = EmployeeProfile.objects.filter(employee=employee).first()
+            except EmployeeProfile.DoesNotExist:
+                employee_profile = None
             # Pass employee data along with the context
             context = {
                 'employee': {
@@ -1054,7 +1072,8 @@ def employeeProfile(request):
                     'image_url': employee_image.employee_image.url if employee_image else None
                 },
                 
-                'employee_info':employee
+                'employee_info':employee,
+                'employee_profile' : employee_profile
             }
             return render(request, 'employee/profile.html', context)
         except EmployeeMaster.DoesNotExist:
@@ -1067,7 +1086,10 @@ def employee_personal_info(request):
         try:
             employee = EmployeeMaster.objects.select_related('user').prefetch_related('employeedesignation_set__designation').get(user=request.user)
             employee_image = EmployeeImage.objects.filter(employee=employee).first()
-            employee_profile = EmployeeProfile.objects.get(employee=employee)
+            try:
+                employee_profile = EmployeeProfile.objects.get(employee=employee)
+            except EmployeeProfile.DoesNotExist:
+                employee_profile = None
             
             # Pass employee data along with the context
             context = {
@@ -1268,7 +1290,7 @@ def set_new_password(request, email):
             user.set_password(new_password)
             user.save()
             del request.session['otp_verified']
-            messages.sucess(request,'Password has been reset Successfully')
+            messages.success(request,'Password has been reset Successfully')
             return redirect('employee_login')
         else:
             messages.error(request,'Passwords do not match')
@@ -1477,10 +1499,21 @@ def employee_edit_profile(request):
         school = request.POST.get('school')
         emergency_contact_person = request.POST.get('emergency_contact_person')
         emergency_phone = request.POST.get('emergency_phone')
-            
+        linkedin = request.POST.get('linkedin')
+        twitter = request.POST.get('twitter')
+        instagram = request.POST.get('instagram')
+        skill1 = request.POST.get('skill1')
+        skill2 = request.POST.get('skill2')
+        skill3 = request.POST.get('skill3')
+        skill4 = request.POST.get('skill4')
+        skill5 = request.POST.get('skill5')
+        
         EmployeeProfile.objects.update_or_create(
             employee__user_id = request.user.id,
             defaults = {
+            'linkedin': linkedin,
+            'twitter' :twitter,
+            'instagram' : instagram,
             'employee':employee_master,
             'company':company,
             'personal_mail':personal_mail,
@@ -1493,7 +1526,12 @@ def employee_edit_profile(request):
             'field_of_study': field_of_study,
             'school':school,
             'emergency_contact_person':emergency_contact_person,
-            'emergency_phone': emergency_phone
+            'emergency_phone': emergency_phone,
+            'skill_1': skill1,
+            'skill_2': skill2,
+            'skill_3': skill3,
+            'skill_4': skill4,
+            'skill_5': skill5,
             }
         )
         

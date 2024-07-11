@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django_otp',
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
-    'debug_toolbar',
+    
     
 ]
 
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'attendance_app.middleware.NoCacheMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'attendance_project.urls'
@@ -178,7 +178,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # USE_TZ = True
   
 TWILIO_ACCOUNT_SID = 'ACdbaa32f10da0f9f4520c2a97602f7fc5'
-TWILIO_AUTH_TOKEN = '465478d801c5fa7282fcaddec68c5c48'
+TWILIO_AUTH_TOKEN = 'd4d00191aee28c2ea18133f9b489d289'
 TWILIO_PHONE_NUMBER = '+12292353898'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'

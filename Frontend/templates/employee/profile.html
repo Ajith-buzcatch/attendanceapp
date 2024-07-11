@@ -5,7 +5,7 @@
     <style>
         .con {
             position: relative;
-            bottom: 160px;
+            bottom: 75px;
         }
 
         @media(max-width:768px) {
@@ -18,7 +18,7 @@
             }
         }
 
-        @media (min-width: 769px) and (max-width: 1350px) {
+        @media (min-width: 769px) and (max-width: 1320px) {
             .con {
                 bottom: 90px;
             }
@@ -149,7 +149,7 @@
             {% endfor %}
         {% endif %}
         <div class="container emp-profile">
-            <form method="post">
+            
                 <div class="row">
                     <div class="col-md-4">
                         <div class="profile-img">
@@ -160,7 +160,7 @@
                                 {% csrf_token %}
                                 <div class="file btn btn-lg btn-primary">
                                     Change Photo
-                                    <input type="file" name="image" onchange="this.form.submit()"/>
+                                    <input type="file" name="profile_image" onchange="this.form.submit()"/>
                                 </div>
                             </form>
                         </div>
@@ -195,15 +195,15 @@
                     <div class="col-md-4">
                         <div class="profile-work">
                             <p>LINK</p>
-                            <a href="">Linkedin </a><br />
-                            <a href="">Twitter </a><br />
-                            <a href="">Instagram</a>
+                            <a href="{{ employee_profile.linkedin }}" target="_blank" > Linkedin </a><br />
+                            <a href="{{ employee_profile.twitter }}" target="_blank">Twitter </a><br />
+                            <a href="{{ employee_profile.instagram }}" target="_blank">Instagram</a>
                             <p>SKILLS</p>
-                            <a href="javascript:void(0)">React.js</a><br />
-                            <a href="javascript:void(0)">Node.js</a><br />
-                            <a href="javascript:void(0)">Tailwind</a><br />
-                            <a href="javascript:void(0)">Bootstrap</a><br />
-                            <a href="javascript:void(0)">Html, css</a><br />
+                            <a href="javascript:void(0)">{{ employee_profile.skill_1 }}</a><br />
+                            <a href="javascript:void(0)">{{ employee_profile.skill_2 }}</a><br />
+                            <a href="javascript:void(0)">{{ employee_profile.skill_3 }}</a><br />
+                            <a href="javascript:void(0)">{{ employee_profile.skill_4 }}</a><br />
+                            <a href="javascript:void(0)">{{ employee_profile.skill_5 }}</a><br />
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -307,7 +307,7 @@
                         </div>
                     </div>
                 </div>
-            </form>
+            
         </div>
 
 

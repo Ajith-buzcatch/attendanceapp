@@ -4,7 +4,7 @@
     <div class="navigation">
         <ul>
             <li class="list {% active request 'employee_index' %}">
-                <a href="{% url "employee_index" %}">
+                <a href="{% url 'employee_index' %}">
                     <span class="icon">
                         <ion-icon name="home-outline"></ion-icon>
                     </span>
@@ -34,8 +34,8 @@
                     <span class="text">Report</span>
                 </a>
             </li>
-            <li class="list {% active request 'employee_profile' %}">
-                <a href="{% url "employee_profile" %}">
+            <li class="list {% active request 'employee_profile' 'employee_edit_profile' 'employee_personal_info' %}">
+                <a href="{% url 'employee_profile' %}">
                     <span class="icon">
                         <ion-icon name="person-outline"></ion-icon>
                     </span>

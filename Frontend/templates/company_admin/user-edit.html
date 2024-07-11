@@ -1,4 +1,5 @@
 {% extends "company_admin/adminbase.html" %}
+{% load static %}
 {% block content %}
 <div class="container mt-5">
     <div class="row">
@@ -20,7 +21,11 @@
                         {% csrf_token %}
                         <div class="form-group">
                             <div class="profile-img-edit position-relative">
-                                <img class="profile-pic rounded avatar-100" src="{{ employee_image.employee_image.url }}" alt="profile-pic">
+                                {% if employee_image %}
+                                    <img class="profile-pic rounded avatar-100" src="{{ employee_image.employee_image.url }}" alt="profile-pic">
+                                {% else %}
+                                    <img class="profile-pic rounded avatar-100" src="{% static 'path/to/default/image.jpg' %}" alt="profile-pic">
+                                {% endif %}
                                 <div class="upload-icone bg-primary">
                                     <svg class="upload-button" width="14" height="14" viewBox="0 0 24 24">
                                         <path fill="#ffffff" d="M14.06,9L15,9.94L5.92,19H5V18.08L14.06,9M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z" />
@@ -45,7 +50,7 @@
                                     <select name="role" class="selectpicker form-control" data-style="py-0">
                                         <option value="">Select</option>
                                         {% for role in roles %}
-                                            <option value="{{ role.id }}" {% if employee_join.role.id == role.id %}selected{% endif %}>{{ role.role }}</option>
+                                            <option value="{{ role.id }}" {% if employee.role and employee.role.id == role.id %}selected{% endif %}>{{ role.role }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -73,7 +78,7 @@
                                         <select name="department" class="selectpicker form-control" data-style="py-0">
                                             <option value="">Select Department</option>
                                             {% for department in departments %}
-                                                <option value="{{ department.id }}" {% if employee_department and employee_department.department.id == department.id %}selected{% endif %}>{{ department.department }}</option>
+                                                <option value="{{ department.id }}" {% if employee.department_id == department.id %}selected{% endif %}>{{ department.department }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -82,7 +87,7 @@
                                         <select name="designation" class="selectpicker form-control" data-style="py-0">
                                             <option value="">Select Designation</option>
                                             {% for designation in designations %}
-                                                <option value="{{ designation.id }}" {% if employee_designation and employee_designation.designation.id == designation.id %}selected{% endif %}>{{ designation.designation }}</option>
+                                                <option value="{{ designation.id }}" {% if employee.designation and employee.designation.id == designation.id %}selected{% endif %}>{{ designation.designation }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>

@@ -5,7 +5,9 @@
     
     <div class="middle">
         <div class="container">
+            
             <div class="row">
+                
                 <div class="col-xl-12">
                     <div class="card">
                         {% for message in messages %}
@@ -15,6 +17,10 @@
                             </div>
                         {% endfor %}
                         <div class="card-body">
+                            <div class="work-name bold blues" style="display:flex; font-size: 90px;">
+                                <a href="{% url "employee_profile" %}" class="mtop"><ion-icon name="arrow-back-outline"></ion-icon></a>
+                                <h5></h5>
+                            </div> <br>
                             {% comment %} <h2>Edit Profile</h2> {% endcomment %}
                             <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
@@ -86,6 +92,46 @@
                                             <div class="form-group col-md-6">
                                                 <label class="form-label" for="emergency_phone">Emergency Phone:</label>
                                                 <input type="text" class="form-control" id="emergency_phone" name="emergency_phone" value="{{ profile.emergency_phone }}" placeholder="Emergency Phone" required>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h6 class="mb-3">Socail Media Links:</h6>
+                                        <div class="row" >
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="linkedin">LinkedIn:</label>
+                                                <input type="text" class="form-control" id="linkedin" name="linkedin" value="{{ profile.linkedin }}" placeholder="Linkedin Link" >
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="twitter">Twitter:</label>
+                                                <input type="text" class="form-control" id="twitter" name="twitter" value="{{ profile.twitter }}" placeholder="Twitter Link" >
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="instagram">Instagram:</label>
+                                                <input type="text" class="form-control" id="instagram" name="instagram" value="{{ profile.instagram }}" placeholder="Instagram Link" >
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h6 class="mb-3">Skills:</h6>
+                                        <div class="row" >
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="skill1">Skill 1:</label>
+                                                <input type="text" class="form-control" id="skill1" name="skill1" value="{{ profile.skill_1 }}" placeholder="Skill 1" >
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="skill2">Skill 2:</label>
+                                                <input type="text" class="form-control" id="skill2" name="skill2" value="{{ profile.skill_2 }}" placeholder="Skill 2" >
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="skill3">Skill 3</label>
+                                                <input type="text" class="form-control" id="skill3" name="skill3" value="{{ profile.skill_3 }}" placeholder="Skill 3" >
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="skill4">Skill 4:</label>
+                                                <input type="text" class="form-control" id="skill4" name="skill4" value="{{ profile.skill_4 }}" placeholder="Skill 4" >
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="form-label" for="skill5">Skill 5:</label>
+                                                <input type="text" class="form-control" id="skill5" name="skill5" value="{{ profile.skill_5 }}" placeholder="Skill 5" >
                                             </div>
                                         </div>
                                     </div>
