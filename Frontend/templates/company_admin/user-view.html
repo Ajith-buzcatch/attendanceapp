@@ -5,7 +5,7 @@
         <div class="col-xl-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title"><a href="{% url 'userlist' %}" ><--</a> User Information</h4>
+                    <h4 class="card-title"><a href="{% url 'userlist' %}" ><-</a> User Information</h4>
                 </div>
                 <div class="card-body">
                     {% if employee_image %}
@@ -13,7 +13,7 @@
                             <img src="{{ employee_image.employee_image.url }}" alt="Profile Picture" class="img-thumbnail" height="300px" width="230px">
                         </div>
                     {% endif %}
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover user-table">
                         <tbody>
                             <tr>
                                 <th>Username</th>
@@ -56,7 +56,7 @@
                     <div>
                         <h5>Personal Info:</h5>
                     </div> <br>
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover user-table">
                         <tbody>
                             <tr>
                                 <th>Personal Mail</th>
@@ -107,26 +107,37 @@
                     <div>
                         <h5>Social Media Links:</h5>
                     </div> <br>
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover user-table">
                         <tbody>
                             <tr>
                                 <th>Linkedin</th>
-                                <td>{{ personal_info.linkedin }}</td>
+                                <td><a href="{{ personal_info.linkedin }}" target="_blank" ><img
+                                    src="https://templates.iqonic.design/gigz/html/dist/assets/images/brands/li.svg"
+                                    alt="li">
+                                    </a>
+                                </td>
                             </tr>
                             <tr>
                                 <th>Twitter</th>
-                                <td>{{ personal_info.twitter }}</td>
+                                <td><a href="{{ personal_info.twitter }}" target="_blank" >
+                                        <img src="https://newsquicktakes.com/wp-content/uploads/twitter_logo_black_generated.jpg" alt="Twitter" height="37px" width="36px">
+                                    </a>
+                                </td>
                             </tr>
                             <tr>
                                 <th>Instagram</th>
-                                <td>{{ personal_info.instagram }}</td>
+                                <td><a href="{{ personal_info.instagram }}" target="_blank" ><img
+                                        src="https://templates.iqonic.design/gigz/html/dist/assets/images/brands/im.svg"
+                                        alt="im">
+                                    </a>
+                                </td>
                             </tr>
                         </tbody>
                     </table> <br>
                     <div>
                         <h5>Skills:</h5>
                     </div> <br>
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered table-hover user-table">
                         <tbody>
                             <tr>
                                 <th>Skill 1</th>

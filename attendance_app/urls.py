@@ -20,11 +20,12 @@ urlpatterns = [
     path('user/delete/<int:user_id>/',views.UserDelete, name='userdelete'),
     path('company_profile',views.CompanyProfile, name='company_profile'),
     path('edit_company_profile/',views.EditCompanyProfile, name='edit_company_profile'),
-    path('add_leave_balance/',views.AddLeaveBalance, name='add_leave_balance'),
+    path('add_leave_balance/',views.add_leave_balance, name='add_leave_balance'),
     path('leave-request/',views.LeaveRequest, name='leave_request'),
     path('process-leave/<int:leave_enquiry_id>/<str:action>/', views.process_leave_request, name='process_leave_request'),
  
 
+    
     path('',views.employee_login, name='employee_login'),
     path('employee_logout/',views.employee_logout, name='employee_logout'),
     path('employee_index/',views.employee_index, name='employee_index'),
@@ -36,6 +37,7 @@ urlpatterns = [
     path('leave/', views.Leave, name='leave'),
     path('leave_details/<int:leave_id>', views.LeaveDetails, name='leave_details'),
     path('reports', views.Report, name='reports'),
+    path('testing', views.testing, name='testing'),
     path('download_report/', views.DownloadReport, name='download_report'),
     path('employee_personal_info/', views.employee_personal_info, name='employee_personal_info'),
     path('employee_work_detail/', views.employee_work_detail, name='employee_work_detail'),

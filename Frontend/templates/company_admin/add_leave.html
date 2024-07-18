@@ -22,13 +22,17 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
+                        {% comment %} <div class="form-group">
                         
                             {% for leave in leave_types %}
                                 <label class="form-label" for="leave_{{ leave.id }}">{{ leave.leaves }}:</label>
                                 <input type="number" class="form-control" id="leave_{{ leave.id }}" name="leave_{{ leave.id }}" value="0">
                                 <br>
                             {% endfor %}
+                        </div> {% endcomment %}
+
+                        <div class="form-group" id="leaveBalances">
+                            <!-- Leave balances will be dynamically loaded here -->
                         </div>
                         
                         <button type="submit" class="btn btn-primary">Submit</button>

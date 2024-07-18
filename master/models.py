@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import datetime, timedelta
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -223,8 +223,10 @@ class EmployeeProfile(models.Model):
     identification_no = models.CharField(max_length=100, null=True, blank=True)
     field_of_study = models.CharField(max_length=100, null=True, blank=True)
     school = models.CharField(max_length=100, null=True, blank=True)
-    emergency_contact_person = models.CharField(max_length=100, null=True, blank=True)
-    emergency_phone = models.CharField(max_length=15, null=True, blank=True)
+    guardian_name = models.CharField(max_length=100, null=True, blank=True)
+    guardian_phone = models.CharField(max_length=15, null=True, blank=True)
+    guardian_email = models.EmailField(null=True, blank=True)
+    guardian_address = models.CharField(max_length=255, null=True, blank=True)
     linkedin = models.CharField(max_length=255, null=True, blank=True)
     twitter = models.CharField(max_length=255, null=True, blank=True)
     instagram = models.CharField(max_length=255, null=True, blank=True)
@@ -233,6 +235,7 @@ class EmployeeProfile(models.Model):
     skill_3 = models.CharField(max_length=255, null=True, blank=True)
     skill_4 = models.CharField(max_length=255, null=True, blank=True)
     skill_5 = models.CharField(max_length=255, null=True, blank=True)
+    
     class Meta:
       db_table = 'employeeprofile'
       
@@ -249,3 +252,14 @@ class BankDetails(models.Model):
 
     def __str__(self):
         return f"{self.employee.user.username}'s Bank Details"
+      
+      
+class CountdownState(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+      db_table = 'countdown'
+    

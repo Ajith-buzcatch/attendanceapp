@@ -381,7 +381,7 @@ def attendance_overview(request):
     return render(request, 'company_admin/attendance.html', context)
 
 @login_required(login_url='employee_login')
-def AddLeaveBalance(request):
+def add_leave_balance(request):
     company = CompanyDetails.objects.get(user=request.user)
     employees = EmployeeMaster.objects.filter(company=company)
     leave_types = LeaveMaster.objects.all()
@@ -396,13 +396,20 @@ def AddLeaveBalance(request):
             
             if balance is None or balance =='':
                 balance = 0
+            else:
+                balance = float(balance)
                 
-            AddLeave.objects.update_or_create(
+            leave_record, created = AddLeave.objects.get_or_create(
                 employee=employee,
                 leave_id=leave_id,
                 company=company,
-                defaults={'leave_balance': balance, 'available_leave_balance':balance}
+                defaults={'leave_balance': balance, 'available_leave_balance': balance}
             )
+            
+            if not created:
+                leave_record.leave_balance += balance
+                leave_record.available_leave_balance += balance
+                leave_record.save()
 
         return redirect('add_leave_balance')
 
@@ -553,12 +560,14 @@ def employee_index(request):
         process_form_submission(request, employee, company)
     
     latest_attendance = AttendanceMaster.objects.filter(employee=employee).order_by('-login_datetime').first()
+    forgot_checkin_attendance = ForgotCheckIn.objects.filter(employee=employee)
     checkin_time, checkout_time, total_working_hours = calculate_working_hours(latest_attendance)
     monthly_days, monthly_hours, weekly_hours = calculate_attendance_statistics(employee)
     leave_stats = calculate_leave_statistics(leave_requests,employee)
     attendance_counts = get_attendance_counts(employee)
-    
+        
     context = {
+        'forgot_checkin_attendance' : forgot_checkin_attendance,
         'weekly_attendance': attendance_counts['weekly'],
         'monthly_attendance': attendance_counts['monthly'],
         'yearly_attendance': attendance_counts['yearly'],
@@ -627,7 +636,7 @@ def handle_forgot_checkin(request, employee, company, current_datetime, location
         ForgotCheckIn.objects.create(
             employee=employee,
             company=company,
-            current_time=current_datetime,
+            current_time=timezone.now(),
             normal_login_time=start_time,
             reason=reason,
             location=location_name,
@@ -1419,8 +1428,57 @@ def Report(request):
             employee__user=request.user, 
             login_datetime__date__range=(from_date, to_date)
         )
-    
+
+        # Debugging: Print the query and number of records found
+        print(f"Query: {attendance_records.query}")
+        print(f"Number of records found: {attendance_records.count()}")
+        
     return render(request, 'employee/report.html', {'attendance_records': attendance_records})
+
+
+@login_required(login_url='employee_login')
+def testing(request):
+    attendance_records = None
+    
+    if request.method == 'POST':
+        
+        storage = messages.get_messages(request) #clear previous error messages
+        storage.used = True
+        
+        from_date = request.POST.get('from_date')
+        to_date = request.POST.get('to_date')
+        
+        # Check if both dates are provided
+        if not from_date or not to_date:
+            messages.error(request, "Both from date and to date are required.")
+            return redirect('testing')
+        
+        # Convert dates to proper format
+        try:
+            from_date = parse_date(from_date)
+            to_date = parse_date(to_date)
+        except ValueError:
+            messages.error(request, "Invalid date format.")
+            return redirect('testing')
+
+        # Validate date range
+        if from_date > to_date:
+            messages.error(request, "From date cannot be later than end date.")
+            return redirect('testing')
+        
+        # Query attendance records within the date range
+        attendance_records = AttendanceMaster.objects.filter(
+            employee__user=request.user, 
+            login_datetime__date__range=(from_date, to_date)
+        )
+
+        # Debugging: Print the query and number of records found
+        print(f"Query: {attendance_records.query}")
+        print(f"Number of records found: {attendance_records.count()}")
+        
+    return render(request, 'employee/testing.html', {'attendance_records': attendance_records})
+
+
 
 @login_required(login_url='employee_login')
 def DownloadReport(request):
@@ -1497,8 +1555,10 @@ def employee_edit_profile(request):
         identification_no = request.POST.get('identification_no')
         field_of_study = request.POST.get('field_of_study')
         school = request.POST.get('school')
-        emergency_contact_person = request.POST.get('emergency_contact_person')
-        emergency_phone = request.POST.get('emergency_phone')
+        guardian_name = request.POST.get('guardian_name')
+        guardian_phone = request.POST.get('guardian_phone')
+        guardian_email = request.POST.get('guardian_email')
+        guardian_address = request.POST.get('guardian_address')
         linkedin = request.POST.get('linkedin')
         twitter = request.POST.get('twitter')
         instagram = request.POST.get('instagram')
@@ -1525,8 +1585,10 @@ def employee_edit_profile(request):
             'identification_no': identification_no,
             'field_of_study': field_of_study,
             'school':school,
-            'emergency_contact_person':emergency_contact_person,
-            'emergency_phone': emergency_phone,
+            'guardian_name':guardian_name,
+            'guardian_phone': guardian_phone,
+            'guardian_email': guardian_email,
+            'guardian_address': guardian_address,
             'skill_1': skill1,
             'skill_2': skill2,
             'skill_3': skill3,
