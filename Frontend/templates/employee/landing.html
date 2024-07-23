@@ -106,17 +106,20 @@
 
     <script>
         let countdownInterval;
-        let totalSeconds;
+        let totalSeconds = {{ remaining_time|default:0 }};
         let breakSeconds = 0;
         let breakStart = null;
-        
+        let breakActive = false;
+        let currentBreakType = null;
+    
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded');
             resumeCountdown();
-        
+            fetchCountdownState();
+    
             const isNewUser = {{ is_new_user|yesno:"true,false" }};
             console.log('Is new user:', isNewUser);
-        
+    
             if (isNewUser) {
                 const checkinButton = document.getElementById('checkin-button');
                 const breakButtons = document.getElementById('break-buttons');
@@ -124,36 +127,79 @@
                 if (breakButtons) breakButtons.style.display = 'none';
             }
         });
-        
+    
         function startCountdown() {
             countdownInterval = setInterval(function() {
                 if (totalSeconds <= 0) {
                     clearInterval(countdownInterval);
+                    stopCountdown();
                     return;
                 }
                 totalSeconds--;
-        
+    
                 let hours = Math.floor(totalSeconds / 3600);
                 let minutes = Math.floor((totalSeconds % 3600) / 60);
                 let seconds = totalSeconds % 60;
-        
+    
                 document.getElementById('hours').textContent = String(hours).padStart(2, '0');
                 document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
                 document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-        
+    
                 saveCountdownState();
             }, 1000);
         }
-        
+    
         function stopCountdown() {
             clearInterval(countdownInterval);
-            totalSeconds = 9 * 60 * 60; // Reset to 9 hours
-            document.getElementById('hours').textContent = '09';
+            totalSeconds = 0; // Reset to 0
+            document.getElementById('hours').textContent = '00';
             document.getElementById('minutes').textContent = '00';
             document.getElementById('seconds').textContent = '00';
-            clearLocalStorage();
+            saveCountdownState();
         }
-        
+    
+        function fetchCountdownState() {
+            fetch('/get_countdown_state/')
+                .then(response => response.json())
+                .then(data => {
+                    totalSeconds = data.total_seconds;
+    
+                    if (totalSeconds > 0) {
+                        startCountdown();
+                        //showCheckoutAndBreakButtons();
+                    } else {
+                        stopCountdown();
+                    }
+                    updateBreakTime();
+                });
+        }
+    
+        function saveCountdownState() {
+            fetch('/update_countdown_state/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    total_seconds: totalSeconds
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Update status:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            localStorage.setItem('totalSeconds', totalSeconds);
+        }
+    
+        function getCsrfToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+    
         function clearLocalStorage() {
             localStorage.removeItem('totalSeconds');
             localStorage.removeItem('startTime');
@@ -162,14 +208,14 @@
             localStorage.removeItem('breakActive');
             localStorage.removeItem('currentBreakType');
         }
-        
+    
         function handleCheckIn() {
             getLocationAndSubmit('checkin', 'attendance-form', function(success) {
                 if (success) {
-                    totalSeconds = 9 * 60 * 60; // 9 hours in seconds
+                    totalSeconds = {{ remaining_time|default:0 }}; // Set to initial value
                     saveCountdownState();
                     startCountdown();
-        
+    
                     const checkinButton = document.getElementById('checkin-button');
                     const breakButtons = document.getElementById('break-buttons');
                     const breakHours = document.getElementById('break-hours');
@@ -179,35 +225,35 @@
                 }
             });
         }
-        
-        function showCheckoutAndBreakButtons() {
+    
+        {% comment %} function showCheckoutAndBreakButtons() {
             const checkinButton = document.getElementById('checkin-button');
             const checkoutButton = document.getElementById('checkout-button');
             const breakButtons = document.getElementById('break-buttons');
             const breakHours = document.getElementById('break-hours');
-        
+    
             if (checkinButton) checkinButton.style.display = 'none';
             if (checkoutButton) checkoutButton.style.display = 'block';
             if (breakButtons) breakButtons.style.display = 'flex';
             if (breakHours) breakHours.style.display = 'block';
-        }
-        
+        } {% endcomment %}
+    
         function getLocationAndSubmit(action, formId, callback) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     var latitude = position.coords.latitude;
                     var longitude = position.coords.longitude;
-        
+    
                     document.querySelectorAll('input[name="latitude"]').forEach(function(input) {
                         input.value = latitude;
                     });
                     document.querySelectorAll('input[name="longitude"]').forEach(function(input) {
                         input.value = longitude;
                     });
-        
+    
                     document.querySelector(`#${formId} input[name="action"]`).value = action;
                     document.getElementById(formId).submit();
-        
+    
                     if (callback) {
                         callback(true);
                     }
@@ -217,76 +263,84 @@
                     } else {
                         alert('Error fetching location: ' + error.message);
                     }
-        
+    
                     if (callback) {
                         callback(false);
                     }
                 });
             } else {
                 alert('Geolocation is not supported by this browser.');
-        
+    
                 if (callback) {
                     callback(false);
                 }
             }
         }
-        
+    
         function validateForgotCheckinForm() {
             var startTime = document.getElementById('start-time').value;
             var reason = document.getElementById('reason').value;
-        
+    
             if (!startTime || !reason) {
                 alert('Please fill out all required fields.');
                 return false;
             }
             return true;
         }
-        
+    
         function submitForgotCheckin() {
             if (validateForgotCheckinForm()) {
                 getLocationAndSubmit('forgot_checkin', 'forgot-checkin-form');
-        
+    
                 // Start the countdown after submitting forgot check-in
-                totalSeconds = 9 * 60 * 60; // 9 hours in seconds
+                totalSeconds = {{ remaining_time|default:0 }}; // Set to initial value
                 saveCountdownState();
                 startCountdown();
                 toggleButtons(true);
             }
         }
         
+        function resetCountdown() {
+            clearInterval(countdownInterval);
+            totalSeconds = 0;
+            breakSeconds = 0;
+            document.getElementById('hours').textContent = '00';
+            document.getElementById('minutes').textContent = '00';
+            document.getElementById('seconds').textContent = '00';
+            saveCountdownState();
+        }
+
         function confirmCheckout() {
             $('#checkoutModal').modal('show');
-        
+    
             document.getElementById('confirm-checkout').addEventListener('click', function() {
                 getLocationAndSubmit('checkout', 'attendance-form', function(success) {
                     if (success) {
-                        stopCountdown();
+                        //stopCountdown();
+                        resetCountdown();
                         $('#checkoutModal').modal('hide');
-        
-                        //document.getElementById('checkin-button').style.display = 'block';
-                        //document.getElementById('break-buttons').style.display = 'none';
-                        //document.getElementById('break-hours').style.display = 'none';
+                        //showCheckoutAndBreakButtons(); // Adjust visibility after checkout
                     }
                 });
             }, { once: true });
         }
-        
+    
         function handleBreak(type) {
             const teaBreakButton = document.getElementById('tea-break-button');
             const lunchBreakButton = document.getElementById('lunch-break-button');
             const checkoutButton = document.getElementById('checkout-button');
-        
+    
             if (breakStart) {
                 breakSeconds += Math.floor((Date.now() - breakStart) / 1000);
                 breakStart = null;
                 updateBreakTime();
-        
+    
                 if (type === 'tea') {
                     teaBreakButton.innerHTML = '<span class="bold">Tea Break</span>';
                 } else if (type === 'lunch') {
                     lunchBreakButton.innerHTML = '<span class="bold">Lunch Break</span>';
                 }
-        
+    
                 teaBreakButton.disabled = false;
                 lunchBreakButton.disabled = false;
                 checkoutButton.disabled = false;
@@ -305,23 +359,18 @@
                 breakActive = true;
                 currentBreakType = type;
             }
-        
+    
             saveBreakState();
         }
-        
+    
         function saveBreakState() {
+            
             localStorage.setItem('breakSeconds', breakSeconds);
             localStorage.setItem('breakStart', breakStart);
             localStorage.setItem('breakActive', breakActive);
             localStorage.setItem('currentBreakType', currentBreakType);
         }
-        
-        function saveCountdownState() {
-            localStorage.setItem('totalSeconds', totalSeconds);
-            localStorage.setItem('startTime', Date.now());
-            saveBreakState();
-        }
-        
+    
         function updateBreakTime() {
             let hours = Math.floor(breakSeconds / 3600);
             let minutes = Math.floor((breakSeconds % 3600) / 60);
@@ -331,31 +380,31 @@
                 String(minutes).padStart(2, '0') + ':' +
                 String(seconds).padStart(2, '0');
         }
-        
+    
         function resumeCountdown() {
             let storedSeconds = localStorage.getItem('totalSeconds');
             let startTime = localStorage.getItem('startTime');
             breakSeconds = parseInt(localStorage.getItem('breakSeconds')) || 0;
-            breakStart = parseInt(localStorage.getItem('breakStart')) || null;
+            breakStart = localStorage.getItem('breakStart') ? parseInt(localStorage.getItem('breakStart')) : null;
             breakActive = localStorage.getItem('breakActive') === 'true';
             currentBreakType = localStorage.getItem('currentBreakType');
-        
+    
             if (storedSeconds && startTime) {
                 let elapsed = Math.floor((Date.now() - startTime) / 1000);
                 totalSeconds = storedSeconds - elapsed;
-        
+    
                 if (totalSeconds > 0) {
                     startCountdown();
-                    showCheckoutAndBreakButtons();
+                    //showCheckoutAndBreakButtons();
                 } else {
                     stopCountdown();
                 }
             }
-        
+    
             const teaBreakButton = document.getElementById('tea-break-button');
             const lunchBreakButton = document.getElementById('lunch-break-button');
             const checkoutButton = document.getElementById('checkout-button');
-        
+    
             if (breakActive) {
                 if (currentBreakType === 'tea') {
                     if (teaBreakButton) teaBreakButton.innerHTML = '<span class="bold">End Tea Break</span>';
@@ -368,7 +417,8 @@
             }
             updateBreakTime();
         }
-        
     </script>
+    
+    
 
     {% endblock %}

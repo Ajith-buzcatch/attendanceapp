@@ -245,6 +245,7 @@ class BankDetails(models.Model):
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, null=True, blank=True)
     bank_name = models.CharField(max_length=100)
     account_number = models.CharField(max_length=20)
+    ifsc_code = models.CharField(max_length=50, null=True, blank=True)
     branch_address = models.CharField(max_length=255)
     
     class Meta:
@@ -256,10 +257,11 @@ class BankDetails(models.Model):
       
 class CountdownState(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    start_time = models.DateTimeField(null=True, blank=True)
-    end_time = models.DateTimeField(null=True, blank=True)
-    is_active = models.BooleanField(default=False)
+    total_seconds = models.FloatField(default=0)
+    # start_time = models.DateTimeField(null=True, blank=True)
+    # end_time = models.DateTimeField(null=True, blank=True)
+    # is_active = models.BooleanField(default=False)
 
     class Meta:
-      db_table = 'countdown'
+      db_table = 'countdown_timer'
     

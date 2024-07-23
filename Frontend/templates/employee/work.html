@@ -83,7 +83,7 @@
         <div class="landing-center">
             <div class="work-name bold blues" style="display:flex">
                 <h5>Bank Details</h5> &nbsp; &nbsp;
-                <ion-icon style="font-size: 25px;" name="add-circle-outline" data-toggle="modal" data-target="#bankDetailsModal"></ion-icon>
+                <ion-icon style="font-size: 22px;" name="add-circle-outline" data-toggle="modal" data-target="#bankDetailsModal"></ion-icon>
                 {% comment %} <span class="mtop" >Add Bank Details</span> {% endcomment %}
                 
             </div>
@@ -98,6 +98,10 @@
                         <tr>
                             <td class="left">Account Number</td>
                             <td class="right">{{ bank_details.account_number }}</td>
+                        </tr>
+                        <tr>
+                            <td class="left">IFSC code</td>
+                            <td class="right">{{ bank_details.ifsc_code }}</td>
                         </tr>
                         <tr>
                             <td class="left">Branch Address</td>
@@ -128,6 +132,10 @@
                             <div class="form-group">
                                 <label for="account_number">Account Number</label>
                                 <input type="text" class="form-control" id="account_number" name="account_number" value="{{ bank_details.account_number }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ifsc_code">IFSC code</label>
+                                <input type="text" class="form-control" id="ifsc_code" name="ifsc_code" value="{{ bank_details.ifsc_code }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="branch_address">Branch Address</label>

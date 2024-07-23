@@ -426,7 +426,7 @@
                             </svg>
                         </i>
                     </div>
-                    <div class="input-group search-input">
+                    {% comment %} <div class="input-group search-input">
                         <span class="input-group-text" id="search-input">
                             <svg width="21" height="21" viewBox="0 0 21 21" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -437,7 +437,7 @@
                             </svg>
                         </span>
                         <input type="search" class="form-control" placeholder="Search...">
-                    </div>
+                    </div> {% endcomment %}
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -453,8 +453,8 @@
                                 <ul class="m-0 d-flex align-items-center navbar-list list-unstyled px-3 px-md-0">
                                     <li class="nav-item dropdown ms-0 ms-md-5 me-2">
                                         <a href="#" class="nav-link" id="mail-drop" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                            <svg width="24" viewBox="0 0 30 26" fill="none"
+                                            aria-haspopup="true" aria-expanded="false" > 
+                                            <svg style="visibility: hidden;" width="24" viewBox="0 0 30 26" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
                                                     d="M22.8705 8.80127L16.9461 13.6187C15.8267 14.5067 14.2519 14.5067 13.1326 13.6187L7.1582 8.80127"
@@ -476,7 +476,7 @@
                                                         <h5 class="mb-0 text-white">All Message</h5>
                                                     </div>
                                                 </div>
-                                                <div class="card-body p-0 ">
+                                                <div class="card-body p-0 " >
                                                     <a href="#" class="iq-sub-card">
                                                         <div class="d-flex  align-items-center">
                                                             <div class="">
@@ -577,7 +577,7 @@
         
         {% endblock %}
 
-        <footer class="footer py-3 border-top">
+        {% comment %} <footer class="footer py-3 border-top">
             <div class="container-fluid">
                 <div class="row align-items-center">
                     <div class="col-sm-7">
@@ -618,7 +618,7 @@
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer> {% endcomment %}
     </main>
 
     <!-- Library Bundle Script -->
@@ -663,6 +663,8 @@
         })
     </script>
     {% block attendance.html %}{% endblock %}
+    {% block user_add_html %}{% endblock %}
+    {% block add_leave_html %}{% endblock %}
 
     <script>
         // Bar Chart

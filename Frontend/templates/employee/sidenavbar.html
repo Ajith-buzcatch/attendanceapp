@@ -22,10 +22,11 @@
             <li class="list {% active request 'leave_form' %}">
                 <a href="{% url 'leave_form' %}">
                     <span class="icon ">
-                        <ion-icon name="add-outline"></ion-icon>
-                    </span>
+                        <ion-icon name="create-outline"></ion-icon>
+                        <span class="text">Request</span>
                 </a>
             </li>
+            
             <li class="list {% active request 'reports' %}">
                 <a href="{% url 'reports' %}">
                     <span class="icon">

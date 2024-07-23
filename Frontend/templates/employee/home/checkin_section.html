@@ -17,7 +17,7 @@
         </div>
 
         <div class="data-middle">
-            <div class="data-box" id="hours">09</div>
+            <div class="data-box" id="hours">00</div>
             <div class="data-box" id="minutes">00</div>
             <div class="data-box" id="seconds">00</div>
             <div class="data-box">HRS</div>
@@ -33,6 +33,7 @@
        
         <form method="POST" action="{% url 'employee_index' %}" id="attendance-form">
             {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             <input type="hidden" id="hidden-date" name="datetime">
             <input type="hidden" name="latitude" id="latitude">
             <input type="hidden" name="longitude" id="longitude">
@@ -139,22 +140,16 @@
                         <textarea class="form-control" name="reason" id="reason" required></textarea>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         {% if forgot_checkin_attendance %}
-                            {% if forgot_checkin_attendance.status == 'Pending' %}
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" disabled>Submit</button>
-                                <br>
-                                <p class="modal-title danger" style="color: red;">Request Already Exists in Pending</p>
-                            {% else %}
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            {% endif %}
+                            <button type="submit" class="btn btn-primary" disabled>Submit</button>
+                            <br>
+                            <p class="modal-title danger" style="color: red;">Request Already Exists in Pending</p>
                         {% else %}
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         {% endif %}
                     </div>
-                </form>
+                </form>.
             </div>
         </div>
     </div>

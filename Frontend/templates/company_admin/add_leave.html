@@ -45,3 +45,50 @@
     </div>
 
 {% endblock  %}
+
+
+{% block add_leave_html %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    
+    document.getElementById('employee').addEventListener('change', function() {
+        var employeeId = this.value;
+        if (employeeId) {
+            fetch(`/get_leave_balances/${employeeId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                var leaveBalances = document.getElementById('leaveBalances');
+                leaveBalances.innerHTML = '';  // Clear previous balances
+                for (var leave of data.leave_balances) {
+                    leaveBalances.innerHTML += `
+                        <label class="form-label" for="leave_${leave.leave_id}">${leave.leave_name}:</label>
+                        <input type="number" class="form-control" id="leave_${leave.leave_id}" name="leave_${leave.leave_id}" value="${leave.available_balance}">
+                        <br>
+                    `;
+                }
+            });
+        } else {
+            document.getElementById('leaveBalances').innerHTML = '';
+        }
+    });
+</script>
+{% endblock %}

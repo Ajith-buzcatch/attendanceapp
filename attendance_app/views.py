@@ -17,6 +17,7 @@ from django.utils.timezone import localtime, timedelta, now
 import requests
 from datetime import datetime
 from django.http import JsonResponse
+import json
 from django.utils.formats import get_format
 from django.http import HttpResponse,HttpResponseRedirect
 from geopy.geocoders import Nominatim
@@ -33,7 +34,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from django.db.models import Prefetch
 import pytz
-
+from django.views.decorators.csrf import csrf_exempt
 # def login_redirect(request):
 #     if request.user.is_authenticated:
 #         return redirect('admin_index')
@@ -44,19 +45,32 @@ def admin_logout(request):
     return redirect('employee_login')
 
 @login_required
-def AdminIndex(request):
+def admin_index(request):
     try:
         # Fetch the company details of the logged-in user
         company = CompanyDetails.objects.get(user=request.user)
         # Fetch all employees linked to this company
         employees = EmployeeJoinMaster.objects.filter(company=company).select_related('employee')
         
+        leaves = LeaveEnquiry.objects.filter(company=company, status=0)
+         
         for employee in employees:
             employee.images = EmployeeImage.objects.filter(employee=employee.employee)
+        employee_count = employees.count() #count the number of employees
+        leave_count = leaves.count()
+        
     except CompanyDetails.DoesNotExist:
         employees = []  # Handle case where company details are not found
+        employee_count = 0 # No employees if company details are not found
+        leave_count = 0
+        
+    context = {
+        'leave_count': leave_count,
+        'employees': employees,
+        'employee_count': employee_count
+    }
     
-    return render(request, 'company_admin/index.html', {'employees': employees})
+    return render(request, 'company_admin/index.html', context)
 
 @login_required
 def CompanyProfile(request):
@@ -92,7 +106,7 @@ def EditCompanyProfile(request):
 
 
 @login_required
-def UserAdd(request):
+def user_add(request):
     if request.method == 'POST':
         username = request.POST['uname']
         password = request.POST['pass']
@@ -264,6 +278,7 @@ def user_view(request, user_id):
     employee_join = EmployeeJoinMaster.objects.filter(employee=employee).first()
     work_time = WorkingTime.objects.filter(user=user).first()
     personal_info = EmployeeProfile.objects.filter(employee=employee).first()
+    bank_details = BankDetails.objects.filter(employee=employee).first()
     context = {
         'user': user,
         'employee': employee,
@@ -272,7 +287,8 @@ def user_view(request, user_id):
         'employee_image': employee_image,
         'employee_join': employee_join,
         'work_time': work_time,
-        'personal_info': personal_info
+        'personal_info': personal_info,
+        'bank_details' : bank_details
     }
     return render(request, 'company_admin/user-view.html', context)
     
@@ -378,7 +394,7 @@ def attendance_overview(request):
         'attendance_records': attendance_records,
     }
     
-    return render(request, 'company_admin/attendance.html', context)
+    return render(request, 'company_admin/attendance1.html', context)
 
 @login_required(login_url='employee_login')
 def add_leave_balance(request):
@@ -418,6 +434,26 @@ def add_leave_balance(request):
         'leave_types': leave_types
     }
     return render(request, 'company_admin/add_leave.html', context)
+
+
+@login_required(login_url='employee_login')
+def get_leave_balances(request, employee_id):
+    employee = EmployeeMaster.objects.get(id=employee_id)
+    leave_types = LeaveMaster.objects.all()
+    leave_balances = AddLeave.objects.filter(employee=employee)
+    
+    leave_balance_dict = {leave.leave.id: leave.available_leave_balance for leave in leave_balances}
+    data = {
+        'leave_balances': [
+            {
+                'leave_id': leave.id,
+                'leave_name': leave.leaves,
+                'available_balance': leave_balance_dict.get(leave.id, 0),
+            } for leave in leave_types
+        ]
+    }
+    return JsonResponse(data)
+
 
 @login_required
 def LeaveRequest(request):
@@ -560,11 +596,13 @@ def employee_index(request):
         process_form_submission(request, employee, company)
     
     latest_attendance = AttendanceMaster.objects.filter(employee=employee).order_by('-login_datetime').first()
-    forgot_checkin_attendance = ForgotCheckIn.objects.filter(employee=employee)
+    forgot_checkin_attendance = ForgotCheckIn.objects.filter(employee=employee, status='Pending').exists()
     checkin_time, checkout_time, total_working_hours = calculate_working_hours(latest_attendance)
     monthly_days, monthly_hours, weekly_hours = calculate_attendance_statistics(employee)
     leave_stats = calculate_leave_statistics(leave_requests,employee)
     attendance_counts = get_attendance_counts(employee)
+    
+    remaining_time = calculate_remaining_time(request, latest_attendance, work_time)
         
     context = {
         'forgot_checkin_attendance' : forgot_checkin_attendance,
@@ -586,9 +624,29 @@ def employee_index(request):
         'rejected_leave_count': leave_stats['rejected'],
         'leave_balance': leave_stats['leave_balance'],
         'is_new_user': is_new_user,
+        'remaining_time': remaining_time,
     }
 
     return render(request, 'employee/landing.html', context)
+
+def calculate_remaining_time(request, latest_attendance, work_time):
+    if latest_attendance and not latest_attendance.logout_datetime:
+        checkin_time = latest_attendance.login_datetime
+        elapsed_time = timezone.now() - checkin_time
+        work_duration = (datetime.combine(datetime.min, work_time.end_time) - datetime.combine(datetime.min, work_time.start_time)).total_seconds()
+        remaining_seconds = work_duration - elapsed_time.total_seconds()
+        
+        if remaining_seconds > 0:
+            request.session['remaining_time'] = remaining_seconds
+        else:
+            request.session['remaining_time'] = 0
+        
+        return request.session['remaining_time']
+    else:
+        if work_time:
+            work_duration = (datetime.combine(datetime.min, work_time.end_time) - datetime.combine(datetime.min, work_time.start_time)).total_seconds()
+            return work_duration
+        return 0
 
 def get_employee_details(user):
     employee = EmployeeMaster.objects.select_related('user', 'company').prefetch_related('employeedesignation_set__designation').get(user=user)
@@ -602,33 +660,77 @@ def process_form_submission(request, employee, company):
     action = request.POST.get('action')
     latitude = request.POST.get('latitude')
     longitude = request.POST.get('longitude')
-    datetime_str = request.POST.get('datetime')
+    #datetime_str = request.POST.get('datetime')
     location_name = get_location_from_coordinates(latitude, longitude)
-    current_datetime = datetime.strptime(datetime_str, '%m/%d/%Y, %I:%M:%S %p')
+    #current_datetime = datetime.strptime(datetime_str, '%m/%d/%Y, %I:%M:%S %p')
     
     if action == 'checkin':
-        checkin_employee(employee, company, current_datetime, location_name)
+        checkin_employee(request, employee, company, location_name)
     elif action == 'checkout':
-        checkout_employee(employee, current_datetime, location_name)
+        checkout_employee(request, employee, location_name)
     elif action == 'forgot_checkin':
-        handle_forgot_checkin(request, employee, company, current_datetime, location_name)
+        handle_forgot_checkin(request, employee, company, location_name)
 
-def checkin_employee(employee, company, current_datetime, location_name):
+def checkin_employee(request, employee, company, location_name):
+    working_time = WorkingTime.objects.get(user=employee.user, company=company)
+    
+     # Calculate the total working seconds based on start and end times
+    start_time = working_time.start_time
+    end_time = working_time.end_time
+    remaining_time  = (datetime.combine(datetime.min, end_time) - datetime.combine(datetime.min, start_time)).total_seconds()
+    
     AttendanceMaster.objects.create(
         employee=employee,
         company=company,
         login_datetime=timezone.now(),
         login_ipaddress=location_name
     )
+    # Update remaining time in CountdownState
+    state, created = CountdownState.objects.get_or_create(user=employee.user)
+    state.total_seconds = remaining_time
+    state.save()
+    
+    
 
-def checkout_employee(employee, current_datetime, location_name):
+def checkout_employee(request,employee, location_name):
     latest_attendance = AttendanceMaster.objects.filter(employee=employee).order_by('-login_datetime').first()
     if latest_attendance and not latest_attendance.logout_datetime:
         latest_attendance.logout_datetime = timezone.now()
         latest_attendance.logout_ipaddress = location_name
         latest_attendance.save()
+        
+         # Clear remaining time in CountdownState
+        state = CountdownState.objects.filter(user=employee.user).first()
+        if state:
+            state.total_seconds = 0
+            state.save()
+            
+        # Clear remaining time in session or local storage
+        if 'remaining_time' in request.session:
+            del request.session['remaining_time']
 
-def handle_forgot_checkin(request, employee, company, current_datetime, location_name):
+@login_required
+def get_countdown_state(request):
+    state = CountdownState.objects.filter(user=request.user).first()
+    data = {
+        'total_seconds': state.total_seconds if state else 0,
+    }
+    return JsonResponse(data)
+
+@csrf_exempt
+@login_required
+def update_countdown_state(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        total_seconds = data.get('total_seconds', 0)
+        state, created = CountdownState.objects.get_or_create(user=request.user)
+        state.total_seconds = total_seconds
+        state.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    
+    
+def handle_forgot_checkin(request, employee, company, location_name):
     start_time = request.POST.get('start_time')
     reason = request.POST.get('reason')
     
@@ -646,7 +748,7 @@ def handle_forgot_checkin(request, employee, company, current_datetime, location
             AttendanceMaster.objects.create(
                 employee=employee,
                 company=company,
-                login_datetime=current_datetime,
+                login_datetime=timezone.now(),
                 login_ipaddress=location_name,
                 is_pending_approval=True
             )
@@ -1133,7 +1235,7 @@ def employee_work_detail(request):
             bank_name = request.POST.get('bank_name')
             account_number = request.POST.get('account_number')
             branch_address = request.POST.get('branch_address')
-
+            ifsc_code = request.POST.get('ifsc_code')
             BankDetails.objects.update_or_create(
                 employee__user_id  = request.user,
                 defaults = {
@@ -1141,7 +1243,8 @@ def employee_work_detail(request):
                     'company' : company,
                     'bank_name' : bank_name,
                     'account_number' : account_number,
-                    'branch_address' :branch_address
+                    'branch_address' :branch_address,
+                    'ifsc_code': ifsc_code
                 }
             )
                     

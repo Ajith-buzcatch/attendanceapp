@@ -1,0 +1,67 @@
+{% extends "company_admin/adminbase.html" %}
+{% load custom_tags %}
+{% block content %}
+
+<div class="conatiner-fluid content-inner mt-6 py-0">
+    <div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <div class="header-title">
+                            <h4 class="card-title">Daily Attendance Report</h4>
+                        </div>
+                    </div>
+                    <div class="card-body px-0">
+                        <div class="table-responsive">
+                            <table id="user-list-table" class="table table-striped" role="grid"
+                                data-toggle="data-table">
+                                <thead>
+                                    <tr class="blue">
+                                        <th>Profile</th>
+                                        <th>Name</th>
+                                        <th>Position</th>
+                                        <th>Check-In</th>
+                                        <th>Location</th>
+                                        <th>Check-Out</th>
+                                        <th>Location</th>
+                                        <th>Working Hours</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in attendance_records %}
+                                    <tr>
+                                        <td class="text-center">
+                                            {% if record.employee.employee_images.all %}
+                                                {% with record.employee.employee_images.all.0.employee_image.url as image_url %}
+                                                    <img class="bg-soft-primary rounded img-fluid avatar-40 me-3"
+                                                        src="{{ image_url }}"
+                                                        alt="profile">
+                                                {% endwith %}
+                                            {% else %}
+                                                <img class="bg-soft-primary rounded img-fluid avatar-40 me-3"
+                                                    src="path/to/default_avatar.png"
+                                                    alt="profile">
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.employee.employee_name }}</td>
+                                        <td>{{ record.employee.id|get_designation }}</td>
+                                        <td>{{ record.login_datetime }}</td>
+                                        <td>{{ record.login_ipaddress }}</td>
+                                        <td>{{ record.logout_datetime }}</td>
+                                        {% comment %} <td>{{ record.logout_datetime|date:"g:i A" }}</td> {% endcomment %}
+                                        <td>{{ record.logout_ipaddress }}</td>
+                                        <td>{{ record.working_hours }}</td>
+                                    </tr>
+                            
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock  %}

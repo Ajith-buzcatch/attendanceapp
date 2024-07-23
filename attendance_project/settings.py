@@ -178,7 +178,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # USE_TZ = True
   
 TWILIO_ACCOUNT_SID = 'ACdbaa32f10da0f9f4520c2a97602f7fc5'
-TWILIO_AUTH_TOKEN = 'd4d00191aee28c2ea18133f9b489d289'
+TWILIO_AUTH_TOKEN = '1f2820e30535595aca80fd6d4428bd28'
 TWILIO_PHONE_NUMBER = '+12292353898'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
